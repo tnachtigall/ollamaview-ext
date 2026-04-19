@@ -1,16 +1,5 @@
 # --- JetBrains IDEs (WebStorm, IntelliJ, etc.) ---
 .idea/
-# Specifically ensuring workspace.xml and other local-only files are ignored
-# even if you decide to share some of the .idea folder later.
-.idea/workspace.xml
-.idea/usage.statistics.xml
-.idea/dictionary.xml
-.idea/shelf/
-.idea/tasks.xml
-.idea/datasources/
-.idea/jsLibraryMappings.xml
-.idea/vcs.xml
-*.iws
 
 # --- Node.js / Standard JS ---
 node_modules/
