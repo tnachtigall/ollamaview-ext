@@ -5,13 +5,16 @@ let rustPort = null;
 function connectToRust() {
     console.log("Attempting to connect to Native Host:", HOST_NAME);
     rustPort = browser.runtime.connectNative(HOST_NAME);
-    
+
     rustPort.onMessage.addListener((response) => {
         console.log("SUCCESS! Received from Rust:", response);
-        browser.runtime.sendMessage({ type: "RUST_REPLY", text: response.text });
+        browser.runtime.sendMessage({
+            ...response,
+            type: "RUST_REPLY"
+        });
     });
 
-    rustPort.onDisconnect.addListener((p) => { 
+    rustPort.onDisconnect.addListener((_) => {
         rustPort = null; 
         if (browser.runtime.lastError) {
             console.error("FATAL: Disconnected from Rust. Reason:", browser.runtime.lastError.message);
