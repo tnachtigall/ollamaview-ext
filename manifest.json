@@ -9,8 +9,13 @@
     }
   },
   "permissions": [
-    "nativeMessaging",
-    "tabs"
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "*://*.google.com/*",
+    "*://*.duckduckgo.com/*",
+    "*://*.ecosia.org/*"
   ],
   "background": {
     "scripts": ["background.js"]
