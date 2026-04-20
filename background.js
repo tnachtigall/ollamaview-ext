@@ -40,7 +40,8 @@ async function getTopSearchResults(targetTabId) {
                 // Google: '#search .g a'
                 // DuckDuckGo: 'a[data-testid="result-title-a"]'
                 // ecosia: '.result a.result-title'
-                const linkNodes = document.querySelectorAll('#search .g a:has(h3), a[data-testid="result-title-a"], .result a.result-title');
+                const linkNodes = document.querySelectorAll(
+                    '#search .g a:has(h3), a[data-testid="result-title-a"], .result a.result-title');
                 const currentHost = window.location.hostname;
 
                 let urls = [];
@@ -87,23 +88,33 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     if (changeInfo.status === "complete" && tab.url) {
         const url = new URL(tab.url);
 
-        // TODO: Add more supported search engines
         if (url.hostname.includes("duckduckgo.com") || url.hostname.includes("ecosia.org") || url.hostname.includes("google.com")) {
-
             const query = url.searchParams.get("q");
 
             if (query) {
-                // connect to rust backend if not already connected
-                if (!rustPort) connectToRust();
+                if (!rustPort) {
+                    try {
+                        connectToRust();
+                    } catch (e) {
+                        console.error("FATAL: connectToRust crashed:", e);
+                    }
+                }
 
-                // send message to sidebar
-                browser.runtime.sendMessage({ type: "THINKING", query: query });
+                // Safely send the message to the sidebar.
+                // We catch the error if the sidebar isn't open so it doesn't halt the script.
+                browser.runtime.sendMessage({ type: "THINKING", query: query })
+                    .catch(err => console.warn("Sidebar not ready/open to receive THINKING state."));
 
-                // scrape top n urls
                 const urls = await getTopSearchResults(tabId);
 
-                // send query and results to rust backend
-                rustPort.postMessage({ query: query, urls: urls });
+                const payload = { query: query, urls: urls };
+                console.log("Sending exact payload to Rust:", JSON.stringify(payload));
+
+                try {
+                    rustPort.postMessage(payload);
+                } catch (e) {
+                    console.error("FATAL: Failed to send to Rust:", e.message);
+                }
             }
         }
     }

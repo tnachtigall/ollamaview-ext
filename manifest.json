@@ -10,7 +10,8 @@
   },
   "permissions": [
     "activeTab",
-    "scripting"
+    "scripting",
+    "nativeMessaging"
   ],
   "host_permissions": [
     "*://*.google.com/*",
