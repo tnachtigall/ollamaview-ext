@@ -106,7 +106,7 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
                     .catch(err => console.warn("Sidebar not ready/open to receive THINKING state."));
 
                 const urls = await getTopSearchResults(tabId);
-                const ollamaInstance = "127.0.0.1:11434"
+                const ollamaInstance = "http://127.0.0.1:11434"
                 const mainModel = "prutser/gemma-4-26B-A4B-it-ara-abliterated:Q3_K_M"
 
                 const payload = { query: query, urls: urls, ollamaInstance: ollamaInstance, mainModel: mainModel };
