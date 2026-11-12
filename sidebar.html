@@ -159,6 +159,39 @@
       cursor: pointer;
     }
 
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .checkbox-row input[type="checkbox"] {
+      width: 15px;
+      height: 15px;
+      accent-color: var(--accent);
+      cursor: pointer;
+      margin: 0;
+    }
+
+    #advancedSection {
+      display: none;
+      border-top: 1px solid var(--border);
+      padding-top: 8px;
+      margin-top: 6px;
+    }
+
+    #advancedSection.open {
+      display: block;
+    }
+
+    .link-btn {
+      padding: 1px 6px;
+      font-size: 0.8em;
+      font-weight: normal;
+    }
+
     .input-row {
       display: flex;
       gap: 6px;
@@ -304,34 +337,56 @@
         <option value="">-- Fetch models first --</option>
       </select>
     </div>
-    <div class="field">
-      <label for="maxSources">
-        <span class="label-left">
-          Sources
-          <span class="tooltip-wrap" tabindex="0" aria-label="Scraped sources tradeoff info">ⓘ
-            <span class="tooltip-box">Fewer sources = faster fetch &amp; deeper excerpts per page. More sources = broader synthesis across sites, with shorter excerpts per page.</span>
-          </span>
+
+    <div class="checkbox-row">
+      <span class="label-left">
+        <label for="thinkingMode" style="margin:0; cursor:pointer;">Thinking Mode</label>
+        <span class="tooltip-wrap" tabindex="0" aria-label="Thinking mode info">ⓘ
+          <span class="tooltip-box">Allow reasoning models (e.g. Gemma 4, Qwen 3) to think before answering. Improves complex reasoning, but increases wait time before the answer starts.</span>
         </span>
-        <span id="maxSourcesValue" class="label-value">5 sources (Balanced)</span>
-      </label>
-      <input id="maxSources" type="range" min="2" max="8" step="1" value="5" />
+      </span>
+      <input id="thinkingMode" type="checkbox" />
     </div>
-    <div class="field">
-      <label for="contextSize">
-        <span class="label-left">
-          Context Size
-          <span class="tooltip-wrap" tabindex="0" aria-label="Context size tradeoff info">ⓘ
-            <span class="tooltip-box">Smaller = faster first token &amp; lower VRAM. Larger = reads deeper into long articles, but increases prompt processing time.</span>
+
+    <div class="checkbox-row">
+      <label for="advancedToggle" style="margin:0; cursor:pointer;">Advanced Settings</label>
+      <input id="advancedToggle" type="checkbox" />
+    </div>
+
+    <div id="advancedSection">
+      <div class="field">
+        <label for="maxSources">
+          <span class="label-left">
+            Sources
+            <span class="tooltip-wrap" tabindex="0" aria-label="Scraped sources tradeoff info">ⓘ
+              <span class="tooltip-box">Fewer sources = faster fetch &amp; deeper excerpts per page. More sources = broader synthesis across sites, with shorter excerpts per page.</span>
+            </span>
           </span>
-        </span>
-        <span id="contextSizeValue" class="label-value">4096 tokens (Balanced)</span>
-      </label>
-      <input id="contextSize" type="range" min="2048" max="8192" step="2048" value="4096" />
+          <span id="maxSourcesValue" class="label-value">5 sources (Balanced)</span>
+        </label>
+        <input id="maxSources" type="range" min="2" max="8" step="1" value="5" />
+      </div>
+      <div class="field">
+        <label for="contextSize">
+          <span class="label-left">
+            Context Size
+            <span class="tooltip-wrap" tabindex="0" aria-label="Context size tradeoff info">ⓘ
+              <span class="tooltip-box">Smaller = faster first token &amp; lower VRAM. Larger = reads deeper into long articles, but increases prompt processing time.</span>
+            </span>
+          </span>
+          <span id="contextSizeValue" class="label-value">4096 tokens (Balanced)</span>
+        </label>
+        <input id="contextSize" type="range" min="2048" max="8192" step="2048" value="4096" />
+      </div>
+      <div class="field">
+        <label for="systemPrompt">
+          <span>System Prompt</span>
+          <button id="resetPromptBtn" class="link-btn" type="button">Reset</button>
+        </label>
+        <textarea id="systemPrompt" rows="5"></textarea>
+      </div>
     </div>
-    <div class="field">
-      <label for="systemPrompt">System Prompt</label>
-      <textarea id="systemPrompt" rows="5"></textarea>
-    </div>
+
     <div class="actions-row">
       <span id="configStatus"></span>
       <button id="saveConfigBtn" type="button">Save</button>

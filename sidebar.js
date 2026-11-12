@@ -11,11 +11,15 @@ const configPanel = document.getElementById("configPanel");
 const ollamaEndpointInput = document.getElementById("ollamaEndpoint");
 const fetchModelsBtn = document.getElementById("fetchModelsBtn");
 const modelSelect = document.getElementById("modelSelect");
+const thinkingModeInput = document.getElementById("thinkingMode");
+const advancedToggleInput = document.getElementById("advancedToggle");
+const advancedSection = document.getElementById("advancedSection");
 const maxSourcesInput = document.getElementById("maxSources");
 const maxSourcesValue = document.getElementById("maxSourcesValue");
 const contextSizeInput = document.getElementById("contextSize");
 const contextSizeValue = document.getElementById("contextSizeValue");
 const systemPromptInput = document.getElementById("systemPrompt");
+const resetPromptBtn = document.getElementById("resetPromptBtn");
 const saveConfigBtn = document.getElementById("saveConfigBtn");
 const configStatus = document.getElementById("configStatus");
 
@@ -343,6 +347,8 @@ function formatContextLabel(val) {
 async function saveConfig() {
     const ollamaInstance = (ollamaEndpointInput.value || DEFAULT_OLLAMA_INSTANCE).trim();
     const mainModel = (modelSelect.value || "").trim();
+    const thinkingMode = Boolean(thinkingModeInput.checked);
+    const advancedMode = Boolean(advancedToggleInput.checked);
     const maxSources = Math.min(8, Math.max(2, Number(maxSourcesInput.value) || DEFAULT_MAX_SOURCES));
     const contextSize = Math.min(8192, Math.max(2048, Number(contextSizeInput.value) || DEFAULT_CONTEXT_SIZE));
     const systemPrompt = (systemPromptInput.value || "").trim() || DEFAULT_SYSTEM_PROMPT;
@@ -350,7 +356,15 @@ async function saveConfig() {
     maxSourcesValue.textContent = formatSourcesLabel(maxSources);
     contextSizeValue.textContent = formatContextLabel(contextSize);
     savedModel = mainModel;
-    await browser.storage.local.set({ ollamaInstance, mainModel, maxSources, contextSize, systemPrompt });
+    await browser.storage.local.set({
+        ollamaInstance,
+        mainModel,
+        thinkingMode,
+        advancedMode,
+        maxSources,
+        contextSize,
+        systemPrompt
+    });
     setConfigStatus(mainModel ? `Saved (${mainModel})` : "Saved config");
 }
 
@@ -369,6 +383,20 @@ ollamaEndpointInput.addEventListener("keydown", (e) => {
 });
 
 modelSelect.addEventListener("change", () => {
+    saveConfig();
+});
+
+thinkingModeInput.addEventListener("change", () => {
+    saveConfig();
+});
+
+advancedToggleInput.addEventListener("change", () => {
+    advancedSection.classList.toggle("open", advancedToggleInput.checked);
+    saveConfig();
+});
+
+resetPromptBtn.addEventListener("click", () => {
+    systemPromptInput.value = DEFAULT_SYSTEM_PROMPT;
     saveConfig();
 });
 
@@ -394,8 +422,18 @@ saveConfigBtn.addEventListener("click", () => {
 
 // Initialize config state on sidebar load
 (async function initConfig() {
-    const stored = await browser.storage.local.get(["ollamaInstance", "mainModel", "maxSources", "contextSize", "systemPrompt"]);
+    const stored = await browser.storage.local.get([
+        "ollamaInstance",
+        "mainModel",
+        "thinkingMode",
+        "advancedMode",
+        "maxSources",
+        "contextSize",
+        "systemPrompt"
+    ]);
     const endpoint = stored.ollamaInstance || DEFAULT_OLLAMA_INSTANCE;
+    const thinkingMode = Boolean(stored.thinkingMode);
+    const advancedMode = Boolean(stored.advancedMode);
     const maxSources = Math.min(8, Math.max(2, Number(stored.maxSources) || DEFAULT_MAX_SOURCES));
     const contextSize = Math.min(8192, Math.max(2048, Number(stored.contextSize) || DEFAULT_CONTEXT_SIZE));
     const systemPrompt = (stored.systemPrompt && stored.systemPrompt.trim())
@@ -403,6 +441,9 @@ saveConfigBtn.addEventListener("click", () => {
         : DEFAULT_SYSTEM_PROMPT;
     savedModel = stored.mainModel || "";
     ollamaEndpointInput.value = endpoint;
+    thinkingModeInput.checked = thinkingMode;
+    advancedToggleInput.checked = advancedMode;
+    advancedSection.classList.toggle("open", advancedMode);
     maxSourcesInput.value = maxSources;
     maxSourcesValue.textContent = formatSourcesLabel(maxSources);
     contextSizeInput.value = contextSize;
@@ -410,7 +451,7 @@ saveConfigBtn.addEventListener("click", () => {
     systemPromptInput.value = systemPrompt;
 
     if (!stored.systemPrompt || !stored.contextSize || !stored.maxSources) {
-        await browser.storage.local.set({ systemPrompt, maxSources, contextSize });
+        await browser.storage.local.set({ systemPrompt, maxSources, contextSize, thinkingMode, advancedMode });
     }
 
     if (!savedModel) {

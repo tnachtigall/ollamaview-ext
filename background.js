@@ -176,9 +176,17 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
             const query = url.searchParams.get("q");
 
             if (query) {
-                const stored = await browser.storage.local.get(["ollamaInstance", "mainModel", "maxSources", "contextSize", "systemPrompt"]);
+                const stored = await browser.storage.local.get([
+                    "ollamaInstance",
+                    "mainModel",
+                    "thinkingMode",
+                    "maxSources",
+                    "contextSize",
+                    "systemPrompt"
+                ]);
                 const ollamaInstance = (stored.ollamaInstance || DEFAULT_OLLAMA_INSTANCE).trim();
                 const mainModel = (stored.mainModel || "").trim();
+                const thinkingMode = Boolean(stored.thinkingMode);
                 const maxSources = Math.min(8, Math.max(2, Number(stored.maxSources) || DEFAULT_MAX_SOURCES));
                 const contextSize = Number(stored.contextSize) || DEFAULT_CONTEXT_SIZE;
                 const systemPrompt = (stored.systemPrompt || DEFAULT_SYSTEM_PROMPT).trim();
@@ -213,6 +221,7 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
                     urls: urls,
                     ollamaInstance: ollamaInstance,
                     mainModel: mainModel,
+                    thinkingMode: thinkingMode,
                     maxSources: maxSources,
                     contextSize: contextSize,
                     systemPrompt: systemPrompt
