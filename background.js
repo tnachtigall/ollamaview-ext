@@ -182,6 +182,8 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
                     "thinkingMode",
                     "maxSources",
                     "contextSize",
+                    "queryExpansion",
+                    "helperModel",
                     "systemPrompt"
                 ]);
                 const ollamaInstance = (stored.ollamaInstance || DEFAULT_OLLAMA_INSTANCE).trim();
@@ -189,6 +191,8 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
                 const thinkingMode = Boolean(stored.thinkingMode);
                 const maxSources = Math.min(8, Math.max(2, Number(stored.maxSources) || DEFAULT_MAX_SOURCES));
                 const contextSize = Number(stored.contextSize) || DEFAULT_CONTEXT_SIZE;
+                const queryExpansion = Boolean(stored.queryExpansion);
+                const helperModel = (stored.helperModel || mainModel).trim();
                 const systemPrompt = (stored.systemPrompt || DEFAULT_SYSTEM_PROMPT).trim();
 
                 if (!mainModel) {
@@ -224,6 +228,8 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
                     thinkingMode: thinkingMode,
                     maxSources: maxSources,
                     contextSize: contextSize,
+                    queryExpansion: queryExpansion,
+                    helperModel: helperModel,
                     systemPrompt: systemPrompt
                 };
                 console.log("Sending exact payload to Rust:", JSON.stringify(payload));

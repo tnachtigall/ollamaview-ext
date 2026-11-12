@@ -18,12 +18,16 @@ const maxSourcesInput = document.getElementById("maxSources");
 const maxSourcesValue = document.getElementById("maxSourcesValue");
 const contextSizeInput = document.getElementById("contextSize");
 const contextSizeValue = document.getElementById("contextSizeValue");
+const queryExpansionInput = document.getElementById("queryExpansion");
+const helperModelField = document.getElementById("helperModelField");
+const helperModelSelect = document.getElementById("helperModelSelect");
 const systemPromptInput = document.getElementById("systemPrompt");
 const resetPromptBtn = document.getElementById("resetPromptBtn");
 const saveConfigBtn = document.getElementById("saveConfigBtn");
 const configStatus = document.getElementById("configStatus");
 
 let savedModel = "";
+let savedHelperModel = "";
 
 // --- Firefox Theme Synchronization ---
 function applyFirefoxTheme(theme) {
@@ -286,13 +290,13 @@ function setConfigStatus(text, isError = false) {
     configStatus.style.color = isError ? "var(--error)" : "var(--muted)";
 }
 
-function populateModelsDropdown(models, preferredModel) {
-    modelSelect.replaceChildren();
+function populateSelectElement(selectEl, models, preferredModel) {
+    selectEl.replaceChildren();
     if (!models || models.length === 0) {
         const opt = document.createElement("option");
         opt.value = "";
         opt.textContent = "-- No models available --";
-        modelSelect.appendChild(opt);
+        selectEl.appendChild(opt);
         return "";
     }
 
@@ -300,15 +304,21 @@ function populateModelsDropdown(models, preferredModel) {
         const opt = document.createElement("option");
         opt.value = modelName;
         opt.textContent = modelName;
-        modelSelect.appendChild(opt);
+        selectEl.appendChild(opt);
     }
 
     if (preferredModel && models.includes(preferredModel)) {
-        modelSelect.value = preferredModel;
+        selectEl.value = preferredModel;
     } else {
-        modelSelect.value = models[0];
+        selectEl.value = models[0];
     }
-    return modelSelect.value;
+    return selectEl.value;
+}
+
+function populateModelsDropdown(models, preferredModel, preferredHelperModel) {
+    const selectedMain = populateSelectElement(modelSelect, models, preferredModel);
+    const selectedHelper = populateSelectElement(helperModelSelect, models, preferredHelperModel || preferredModel);
+    return { selectedMain, selectedHelper };
 }
 
 function requestModels(endpoint) {
@@ -351,11 +361,14 @@ async function saveConfig() {
     const advancedMode = Boolean(advancedToggleInput.checked);
     const maxSources = Math.min(8, Math.max(2, Number(maxSourcesInput.value) || DEFAULT_MAX_SOURCES));
     const contextSize = Math.min(8192, Math.max(2048, Number(contextSizeInput.value) || DEFAULT_CONTEXT_SIZE));
+    const queryExpansion = Boolean(queryExpansionInput.checked);
+    const helperModel = (helperModelSelect.value || "").trim();
     const systemPrompt = (systemPromptInput.value || "").trim() || DEFAULT_SYSTEM_PROMPT;
     systemPromptInput.value = systemPrompt;
     maxSourcesValue.textContent = formatSourcesLabel(maxSources);
     contextSizeValue.textContent = formatContextLabel(contextSize);
     savedModel = mainModel;
+    savedHelperModel = helperModel;
     await browser.storage.local.set({
         ollamaInstance,
         mainModel,
@@ -363,6 +376,8 @@ async function saveConfig() {
         advancedMode,
         maxSources,
         contextSize,
+        queryExpansion,
+        helperModel,
         systemPrompt
     });
     setConfigStatus(mainModel ? `Saved (${mainModel})` : "Saved config");
@@ -392,6 +407,15 @@ thinkingModeInput.addEventListener("change", () => {
 
 advancedToggleInput.addEventListener("change", () => {
     advancedSection.classList.toggle("open", advancedToggleInput.checked);
+    saveConfig();
+});
+
+queryExpansionInput.addEventListener("change", () => {
+    helperModelField.style.display = queryExpansionInput.checked ? "block" : "none";
+    saveConfig();
+});
+
+helperModelSelect.addEventListener("change", () => {
     saveConfig();
 });
 
@@ -429,6 +453,8 @@ saveConfigBtn.addEventListener("click", () => {
         "advancedMode",
         "maxSources",
         "contextSize",
+        "queryExpansion",
+        "helperModel",
         "systemPrompt"
     ]);
     const endpoint = stored.ollamaInstance || DEFAULT_OLLAMA_INSTANCE;
@@ -436,10 +462,12 @@ saveConfigBtn.addEventListener("click", () => {
     const advancedMode = Boolean(stored.advancedMode);
     const maxSources = Math.min(8, Math.max(2, Number(stored.maxSources) || DEFAULT_MAX_SOURCES));
     const contextSize = Math.min(8192, Math.max(2048, Number(stored.contextSize) || DEFAULT_CONTEXT_SIZE));
+    const queryExpansion = Boolean(stored.queryExpansion);
     const systemPrompt = (stored.systemPrompt && stored.systemPrompt.trim())
         ? stored.systemPrompt
         : DEFAULT_SYSTEM_PROMPT;
     savedModel = stored.mainModel || "";
+    savedHelperModel = stored.helperModel || "";
     ollamaEndpointInput.value = endpoint;
     thinkingModeInput.checked = thinkingMode;
     advancedToggleInput.checked = advancedMode;
@@ -448,10 +476,12 @@ saveConfigBtn.addEventListener("click", () => {
     maxSourcesValue.textContent = formatSourcesLabel(maxSources);
     contextSizeInput.value = contextSize;
     contextSizeValue.textContent = formatContextLabel(contextSize);
+    queryExpansionInput.checked = queryExpansion;
+    helperModelField.style.display = queryExpansion ? "block" : "none";
     systemPromptInput.value = systemPrompt;
 
     if (!stored.systemPrompt || !stored.contextSize || !stored.maxSources) {
-        await browser.storage.local.set({ systemPrompt, maxSources, contextSize, thinkingMode, advancedMode });
+        await browser.storage.local.set({ systemPrompt, maxSources, contextSize, thinkingMode, advancedMode, queryExpansion });
     }
 
     if (!savedModel) {
@@ -485,15 +515,17 @@ browser.runtime.onMessage.addListener(async (response) => {
     if (response.type === "MODELS_LIST") {
         const models = response.models || [];
         const isError = response.status === "Error";
-        const selected = populateModelsDropdown(models, savedModel);
+        const { selectedMain, selectedHelper } = populateModelsDropdown(models, savedModel, savedHelperModel);
         setConfigStatus(response.message || (models.length ? `Loaded ${models.length} model(s)` : "No models found"), isError);
 
         // Auto-save first available model if none was previously saved
-        if (selected && selected !== savedModel) {
-            savedModel = selected;
+        if (selectedMain && (selectedMain !== savedModel || (selectedHelper && selectedHelper !== savedHelperModel))) {
+            savedModel = selectedMain;
+            savedHelperModel = selectedHelper;
             await browser.storage.local.set({
                 ollamaInstance: (ollamaEndpointInput.value || DEFAULT_OLLAMA_INSTANCE).trim(),
-                mainModel: selected
+                mainModel: selectedMain,
+                helperModel: selectedHelper
             });
         }
     }

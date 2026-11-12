@@ -378,6 +378,21 @@
         </label>
         <input id="contextSize" type="range" min="2048" max="8192" step="2048" value="4096" />
       </div>
+      <div class="checkbox-row">
+        <span class="label-left">
+          <label for="queryExpansion" style="margin:0; cursor:pointer;">Query Expansion</label>
+          <span class="tooltip-wrap" tabindex="0" aria-label="Query expansion info">ⓘ
+            <span class="tooltip-box">Use a fast secondary model (e.g. 1B–3B) in parallel to generate targeted subqueries, expand BM25 keywords, and discover additional sources.</span>
+          </span>
+        </span>
+        <input id="queryExpansion" type="checkbox" />
+      </div>
+      <div id="helperModelField" class="field" style="display:none;">
+        <label for="helperModelSelect">Expansion Helper Model</label>
+        <select id="helperModelSelect">
+          <option value="">-- Fetch models first --</option>
+        </select>
+      </div>
       <div class="field">
         <label for="systemPrompt">
           <span>System Prompt</span>
