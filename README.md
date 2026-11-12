@@ -1,2 +1,1 @@
-# ollamaview-ext
-Firefox / Librewolf Extension, acting as sidepanel frontend for https://github.com/tillnachtigall/ollamaview
+Firefox Extension, acting as sidepanel frontend for https://github.com/tnachtigall/ollamaview
