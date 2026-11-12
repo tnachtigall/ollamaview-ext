@@ -2,15 +2,249 @@
 <html>
 <head>
   <meta charset="utf-8">
+  <title>Ollamaview</title>
   <style>
-    body { font-family: sans-serif; padding: 10px; }
-    #queryDisplay { font-weight: bold; margin-bottom: 15px; color: #333; }
-    #output { white-space: pre-wrap; background: #f4f4f4; padding: 10px; border-radius: 4px; }
+    :root {
+      color-scheme: light dark;
+      --bg: #ffffff;
+      --fg: #15141a;
+      --muted: #5b5b66;
+      --surface: #f0f0f4;
+      --input-bg: #ffffff;
+      --input-fg: #15141a;
+      --border: #cfcfd8;
+      --accent: #0060df;
+      --code-bg: rgba(21, 20, 26, 0.07);
+      --error: #c50042;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1c1b22;
+        --fg: #fbfbfe;
+        --muted: #b1b1b3;
+        --surface: #2b2a33;
+        --input-bg: #1c1b22;
+        --input-fg: #fbfbfe;
+        --border: #42414d;
+        --accent: #00ddff;
+        --code-bg: rgba(255, 255, 255, 0.08);
+        --error: #ff6b8b;
+      }
+    }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      padding: 12px;
+      margin: 0;
+      background-color: var(--bg);
+      color: var(--fg);
+      font-size: 13.5px;
+      line-height: 1.5;
+    }
+
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2px;
+    }
+
+    .header-row h3 {
+      margin: 0;
+      font-size: 1.15em;
+    }
+
+    .subtitle {
+      margin: 0 0 12px 0;
+      color: var(--muted);
+      font-size: 0.85em;
+      font-weight: normal;
+    }
+
+    button {
+      cursor: pointer;
+      padding: 5px 9px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background-color: var(--surface);
+      color: var(--fg);
+      font-size: 0.85em;
+      transition: filter 0.12s ease;
+    }
+
+    button:hover {
+      filter: brightness(0.93);
+    }
+
+    #configPanel {
+      display: none;
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px;
+      margin-bottom: 12px;
+      font-size: 0.9em;
+    }
+
+    #configPanel.open {
+      display: block;
+    }
+
+    .field {
+      margin-bottom: 8px;
+    }
+
+    .field label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .input-row input, select {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 5px 7px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background-color: var(--input-bg);
+      color: var(--input-fg);
+      font-size: 0.95em;
+    }
+
+    .actions-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      gap: 6px;
+    }
+
+    #configStatus {
+      font-size: 0.88em;
+      color: var(--muted);
+    }
+
+    #queryDisplay {
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--fg);
+      word-break: break-word;
+    }
+
+    #output {
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      padding: 12px;
+      border-radius: 6px;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+    }
+
+    /* Markdown typography */
+    #output > *:first-child { margin-top: 0; }
+    #output > *:last-child { margin-bottom: 0; }
+    #output h1, #output h2, #output h3, #output h4, #output h5, #output h6 {
+      margin: 0.85em 0 0.4em 0;
+      line-height: 1.25;
+    }
+    #output h1 { font-size: 1.3em; border-bottom: 1px solid var(--border); padding-bottom: 0.2em; }
+    #output h2 { font-size: 1.18em; border-bottom: 1px solid var(--border); padding-bottom: 0.15em; }
+    #output h3 { font-size: 1.08em; }
+    #output h4, #output h5, #output h6 { font-size: 1em; }
+    #output p { margin: 0.6em 0; }
+    #output ul, #output ol { margin: 0.5em 0; padding-left: 1.4em; }
+    #output li { margin: 0.25em 0; }
+    #output blockquote {
+      margin: 0.6em 0;
+      padding: 0.3em 0.8em;
+      border-left: 3px solid var(--accent);
+      color: var(--muted);
+      background-color: var(--code-bg);
+      border-radius: 0 4px 4px 0;
+    }
+    #output code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.9em;
+      background-color: var(--code-bg);
+      padding: 0.15em 0.35em;
+      border-radius: 3px;
+    }
+    #output pre {
+      background-color: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 9px 10px;
+      overflow-x: auto;
+      margin: 0.65em 0;
+    }
+    #output pre code {
+      background: none;
+      padding: 0;
+      font-size: 0.88em;
+      white-space: pre;
+    }
+    #output hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 0.9em 0;
+    }
+    #output a {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    #output .table-wrap {
+      overflow-x: auto;
+      margin: 0.65em 0;
+    }
+    #output table {
+      border-collapse: collapse;
+      width: 100%;
+      font-size: 0.92em;
+    }
+    #output th, #output td {
+      border: 1px solid var(--border);
+      padding: 5px 8px;
+      text-align: left;
+    }
+    #output th {
+      background-color: var(--code-bg);
+      font-weight: 600;
+    }
   </style>
 </head>
 <body>
-  <h3>AI Overview</h3>
-  <h4>powered by ollama</h4>
+  <div class="header-row">
+    <h3>AI Overview</h3>
+    <button id="configToggleBtn" type="button">⚙ Config</button>
+  </div>
+  <h4 class="subtitle">powered by ollama</h4>
+
+  <div id="configPanel">
+    <div class="field">
+      <label for="ollamaEndpoint">Ollama Endpoint</label>
+      <div class="input-row">
+        <input id="ollamaEndpoint" type="text" placeholder="http://127.0.0.1:11434" />
+        <button id="fetchModelsBtn" type="button">Fetch</button>
+      </div>
+    </div>
+    <div class="field">
+      <label for="modelSelect">Model</label>
+      <select id="modelSelect">
+        <option value="">-- Fetch models first --</option>
+      </select>
+    </div>
+    <div class="actions-row">
+      <span id="configStatus"></span>
+      <button id="saveConfigBtn" type="button">Save</button>
+    </div>
+  </div>
+
   <div id="queryDisplay">Waiting for a search...</div>
   <div id="output">Results will appear here.</div>
   
