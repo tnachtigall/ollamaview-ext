@@ -96,9 +96,67 @@
     }
 
     .field label {
-      display: block;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       font-weight: 600;
       margin-bottom: 4px;
+    }
+
+    .label-left {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .label-value {
+      font-weight: normal;
+      color: var(--muted);
+      font-size: 0.9em;
+    }
+
+    .tooltip-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      cursor: help;
+      color: var(--muted);
+      font-size: 0.9em;
+      user-select: none;
+    }
+
+    .tooltip-wrap .tooltip-box {
+      visibility: hidden;
+      opacity: 0;
+      position: absolute;
+      left: 0;
+      top: 135%;
+      width: 210px;
+      background-color: var(--bg);
+      color: var(--fg);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 7px 9px;
+      font-size: 0.85em;
+      font-weight: normal;
+      line-height: 1.35;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+      z-index: 20;
+      transition: opacity 0.12s ease;
+      pointer-events: none;
+    }
+
+    .tooltip-wrap:hover .tooltip-box,
+    .tooltip-wrap:focus .tooltip-box {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      margin: 2px 0;
+      accent-color: var(--accent);
+      cursor: pointer;
     }
 
     .input-row {
@@ -245,6 +303,18 @@
       <select id="modelSelect">
         <option value="">-- Fetch models first --</option>
       </select>
+    </div>
+    <div class="field">
+      <label for="contextSize">
+        <span class="label-left">
+          Context Size
+          <span class="tooltip-wrap" tabindex="0" aria-label="Context size tradeoff info">ⓘ
+            <span class="tooltip-box">Smaller = faster first token &amp; lower VRAM. Larger = reads deeper into long articles, but increases prompt processing time.</span>
+          </span>
+        </span>
+        <span id="contextSizeValue" class="label-value">4096 tokens (Balanced)</span>
+      </label>
+      <input id="contextSize" type="range" min="2048" max="16384" step="2048" value="4096" />
     </div>
     <div class="field">
       <label for="systemPrompt">System Prompt</label>

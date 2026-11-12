@@ -1,5 +1,6 @@
 
 const DEFAULT_OLLAMA_INSTANCE = "http://127.0.0.1:11434";
+const DEFAULT_CONTEXT_SIZE = 4096;
 const DEFAULT_SYSTEM_PROMPT = "You are a helpful, privacy-focused search assistant. Using the provided web search sources, write a clear, concise, and accurate overview that directly answers the user's search query. Format your response in clean Markdown (such as bullet points, bold key terms, and short sections where helpful). Synthesize key facts from the sources, stay objective, and avoid speculation. If the sources do not contain enough information to fully answer the query, briefly state what is missing and provide the best helpful answer you can.";
 
 const queryDisplay = document.getElementById("queryDisplay");
@@ -9,6 +10,8 @@ const configPanel = document.getElementById("configPanel");
 const ollamaEndpointInput = document.getElementById("ollamaEndpoint");
 const fetchModelsBtn = document.getElementById("fetchModelsBtn");
 const modelSelect = document.getElementById("modelSelect");
+const contextSizeInput = document.getElementById("contextSize");
+const contextSizeValue = document.getElementById("contextSizeValue");
 const systemPromptInput = document.getElementById("systemPrompt");
 const saveConfigBtn = document.getElementById("saveConfigBtn");
 const configStatus = document.getElementById("configStatus");
@@ -313,13 +316,25 @@ function requestModels(endpoint) {
     });
 }
 
+function formatContextLabel(val) {
+    const n = Number(val) || DEFAULT_CONTEXT_SIZE;
+    let tier = "Balanced";
+    if (n <= 2048) tier = "Fastest";
+    else if (n <= 4096) tier = "Balanced";
+    else if (n <= 8192) tier = "Deep";
+    else tier = "Max Depth";
+    return `${n} tokens (${tier})`;
+}
+
 async function saveConfig() {
     const ollamaInstance = (ollamaEndpointInput.value || DEFAULT_OLLAMA_INSTANCE).trim();
     const mainModel = (modelSelect.value || "").trim();
+    const contextSize = Number(contextSizeInput.value) || DEFAULT_CONTEXT_SIZE;
     const systemPrompt = (systemPromptInput.value || "").trim() || DEFAULT_SYSTEM_PROMPT;
     systemPromptInput.value = systemPrompt;
+    contextSizeValue.textContent = formatContextLabel(contextSize);
     savedModel = mainModel;
-    await browser.storage.local.set({ ollamaInstance, mainModel, systemPrompt });
+    await browser.storage.local.set({ ollamaInstance, mainModel, contextSize, systemPrompt });
     setConfigStatus(mainModel ? `Saved (${mainModel})` : "Saved config");
 }
 
@@ -341,23 +356,34 @@ modelSelect.addEventListener("change", () => {
     saveConfig();
 });
 
+contextSizeInput.addEventListener("input", () => {
+    contextSizeValue.textContent = formatContextLabel(contextSizeInput.value);
+});
+
+contextSizeInput.addEventListener("change", () => {
+    saveConfig();
+});
+
 saveConfigBtn.addEventListener("click", () => {
     saveConfig();
 });
 
 // Initialize config state on sidebar load
 (async function initConfig() {
-    const stored = await browser.storage.local.get(["ollamaInstance", "mainModel", "systemPrompt"]);
+    const stored = await browser.storage.local.get(["ollamaInstance", "mainModel", "contextSize", "systemPrompt"]);
     const endpoint = stored.ollamaInstance || DEFAULT_OLLAMA_INSTANCE;
+    const contextSize = Number(stored.contextSize) || DEFAULT_CONTEXT_SIZE;
     const systemPrompt = (stored.systemPrompt && stored.systemPrompt.trim())
         ? stored.systemPrompt
         : DEFAULT_SYSTEM_PROMPT;
     savedModel = stored.mainModel || "";
     ollamaEndpointInput.value = endpoint;
+    contextSizeInput.value = contextSize;
+    contextSizeValue.textContent = formatContextLabel(contextSize);
     systemPromptInput.value = systemPrompt;
 
-    if (!stored.systemPrompt) {
-        await browser.storage.local.set({ systemPrompt });
+    if (!stored.systemPrompt || !stored.contextSize) {
+        await browser.storage.local.set({ systemPrompt, contextSize });
     }
 
     if (!savedModel) {
@@ -366,6 +392,23 @@ saveConfigBtn.addEventListener("click", () => {
 
     requestModels(endpoint);
 })();
+
+let pendingMarkdown = null;
+let rafScheduled = false;
+
+function scheduleMarkdownRender(text) {
+    pendingMarkdown = text;
+    if (!rafScheduled) {
+        rafScheduled = true;
+        requestAnimationFrame(() => {
+            rafScheduled = false;
+            if (pendingMarkdown !== null) {
+                renderMarkdown(outputDiv, pendingMarkdown);
+                pendingMarkdown = null;
+            }
+        });
+    }
+}
 
 // listen for messages from background.js script
 browser.runtime.onMessage.addListener(async (response) => {
@@ -388,13 +431,13 @@ browser.runtime.onMessage.addListener(async (response) => {
     }
     else if (response.type === "RUST_REPLY") {
         const msg = response.message ?? response.text ?? "";
-        renderMarkdown(outputDiv, msg);
+        scheduleMarkdownRender(msg);
         if (response.received_query) {
             queryDisplay.textContent = "Search: " + response.received_query;
         }
     }
     else if (response.type === "THINKING") {
-        renderMarkdown(outputDiv, "*Generating overview...*");
+        scheduleMarkdownRender("*Generating overview...*");
         queryDisplay.textContent = "Search: " + response.query;
     }
     else {
