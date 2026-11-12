@@ -90,34 +90,42 @@ async function getTopSearchResults(targetTabId, candidateLimit) {
                 const selector = '#search .g a:has(h3), #search a:has(h3), a[data-testid="result-title-a"], .result a.result-title, a[data-test-id="result-link"]';
                 const currentHost = window.location.hostname;
 
-                // Wait briefly for client-rendered search pages (like DuckDuckGo) to mount results
-                let linkNodes = document.querySelectorAll(selector);
-                for (let attempt = 0; attempt < 20 && linkNodes.length === 0; attempt++) {
-                    await new Promise(r => setTimeout(r, 50));
-                    linkNodes = document.querySelectorAll(selector);
-                }
-
-                let urls = [];
-                for (let node of linkNodes) {
-                    let href = node.href;
-
-                    try {
-                        let parsedUrl = new URL(href);
-
-                        // filter out links back to currentHost
-                        if ((parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:") &&
-                            parsedUrl.hostname !== currentHost &&
-                            !parsedUrl.hostname.endsWith("." + currentHost)) {
-                            // dedup check
-                            if (!urls.includes(href)) {
-                                urls.push(href);
+                const extractExternalUrls = () => {
+                    const linkNodes = document.querySelectorAll(selector);
+                    const found = [];
+                    for (const node of linkNodes) {
+                        const href = node.href;
+                        try {
+                            const parsedUrl = new URL(href);
+                            if (
+                                (parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:") &&
+                                parsedUrl.hostname !== currentHost &&
+                                !parsedUrl.hostname.endsWith("." + currentHost)
+                            ) {
+                                if (!found.includes(href)) {
+                                    found.push(href);
+                                }
                             }
+                        } catch (e) {
+                            continue;
                         }
-                    } catch (e) {
-                        continue; // skip malformed urls
+                        if (found.length >= limit) break;
                     }
+                    return found;
+                };
 
-                    if (urls.length >= limit) break;
+                // Wait for search pages (Google, DuckDuckGo, Ecosia) to finish mounting enough result links
+                let urls = extractExternalUrls();
+                const minDesired = Math.min(limit, 8);
+                for (let attempt = 0; attempt < 24 && urls.length < minDesired; attempt++) {
+                    await new Promise(r => setTimeout(r, 60));
+                    const nextUrls = extractExternalUrls();
+                    // If we already have some links and the count stabilized for several ticks after 300ms, stop early
+                    if (attempt >= 6 && nextUrls.length >= 4 && nextUrls.length === urls.length) {
+                        urls = nextUrls;
+                        break;
+                    }
+                    urls = nextUrls;
                 }
                 return urls;
             }
@@ -234,7 +242,7 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
                     .catch(err => console.warn("Sidebar not ready/open to receive THINKING state."));
 
                 // Scrape extra fallback URLs in case sites block scrapers, return cookie stubs, or time out
-                const urls = await getTopSearchResults(tabId, maxSources + 3);
+                const urls = await getTopSearchResults(tabId, maxSources + 5);
 
                 const payload = {
                     query: query,
