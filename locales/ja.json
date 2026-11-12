@@ -39,7 +39,6 @@
   "generatingOverview": "*概要を生成中...*",
   "searchPrefix": "検索: ",
   "queryingModels": "モデルを取得中...",
-  "savedPrefix": "保存完了",
-  "defaultSystemPrompt": "あなたはプライバシーを重視した有能な検索アシスタントです。提供されたWeb検索ソースに基づき、ユーザーの検索クエリに直接答える明確で簡潔かつ正確な概要をMarkdown形式で作成してください。重要な事実を客観的に統合し、推測は避けてください。"
+  "savedPrefix": "保存完了"
 }
 

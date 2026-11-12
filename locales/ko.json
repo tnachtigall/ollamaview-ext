@@ -39,7 +39,6 @@
   "generatingOverview": "*개요 생성 중...*",
   "searchPrefix": "검색: ",
   "queryingModels": "모델 조회 중...",
-  "savedPrefix": "저장됨",
-  "defaultSystemPrompt": "당신은 개인정보 보호를 중시하는 유능한 검색 도우미입니다. 제공된 웹 검색 출처를 바탕으로 사용자의 검색어에 직접 답하는 명확하고 간결하며 정확한 개요를 깔끔한 Markdown 형식으로 작성하세요. 핵심 사실을 객관적으로 종합하고 추측은 피하세요."
+  "savedPrefix": "저장됨"
 }
 

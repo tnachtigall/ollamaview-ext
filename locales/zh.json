@@ -39,7 +39,6 @@
   "generatingOverview": "*正在生成概览...*",
   "searchPrefix": "搜索：",
   "queryingModels": "正在查询模型...",
-  "savedPrefix": "已保存",
-  "defaultSystemPrompt": "你是一个注重隐私的智能搜索助手。请根据提供的网页搜索来源，撰写清晰、简洁、准确的概览，直接回答用户的搜索查询。请使用整洁的 Markdown 格式排版，客观综合关键事实，避免无根据的推测。"
+  "savedPrefix": "已保存"
 }
 

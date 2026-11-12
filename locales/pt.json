@@ -39,7 +39,6 @@
   "generatingOverview": "*Gerando visão geral...*",
   "searchPrefix": "Pesquisa: ",
   "queryingModels": "Consultando modelos...",
-  "savedPrefix": "Salvo",
-  "defaultSystemPrompt": "Você é um assistente de pesquisa útil e focado em privacidade. Usando as fontes da web fornecidas, escreva uma visão geral clara, concisa e precisa que responda diretamente à pesquisa do usuário em Markdown limpo. Sintetize os fatos principais com objetividade e evite especulações."
+  "savedPrefix": "Salvo"
 }
 

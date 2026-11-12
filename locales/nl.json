@@ -39,7 +39,6 @@
   "generatingOverview": "*Overzicht genereren...*",
   "searchPrefix": "Zoekopdracht: ",
   "queryingModels": "Modellen opvragen...",
-  "savedPrefix": "Opgeslagen",
-  "defaultSystemPrompt": "Je bent een behulpzame, privacygerichte zoekassistent. Schrijf op basis van de geleverde webbronnen een helder, beknopt en nauwkeurig overzicht dat de zoekopdracht direct beantwoordt in nette Markdown. Vat kernfeiten objectief samen en vermijd speculatie."
+  "savedPrefix": "Opgeslagen"
 }
 

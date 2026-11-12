@@ -2,7 +2,16 @@
 const DEFAULT_OLLAMA_INSTANCE = "http://127.0.0.1:11434";
 const DEFAULT_MAX_SOURCES = 5;
 const DEFAULT_CONTEXT_SIZE = 4096;
-const DEFAULT_SYSTEM_PROMPT = "You are a helpful, privacy-focused search assistant. Using the provided web search sources, write a clear, concise, and accurate overview that directly answers the user's search query. Format your response in clean Markdown (such as bullet points, bold key terms, and short sections where helpful). Synthesize key facts from the sources, stay objective, and avoid speculation. If the sources do not contain enough information to fully answer the query, briefly state what is missing and provide the best helpful answer you can.";
+const LEGACY_DEFAULT_SYSTEM_PROMPT = "You are a helpful, privacy-focused search assistant. Using the provided web search sources, write a clear, concise, and accurate overview that directly answers the user's search query. Format your response in clean Markdown (such as bullet points, bold key terms, and short sections where helpful). Synthesize key facts from the sources, stay objective, and avoid speculation. If the sources do not contain enough information to fully answer the query, briefly state what is missing and provide the best helpful answer you can.";
+const DEFAULT_SYSTEM_PROMPT = `You are a precise, privacy-focused search synthesis engine. Your task is to generate a dense, objective overview that directly answers the user's query using ONLY the provided "--- SOURCE N ---" search excerpts.
+
+### Core Rules
+1. **Strict Grounding:** Base every statement exclusively on the provided sources. Never rely on prior training data, assume unstated facts, or extrapolate to fill gaps.
+2. **Preserve Granularity:** Retain concrete details from the sources—such as exact numbers, units, configuration flags, function/API names, dates, versions, and proper nouns—rather than summarizing them into vague generalizations.
+3. **Calibrated Claims & Contradictions:** Mirror the exact certainty of the sources. Avoid absolute language if sources describe probabilities, trade-offs, or conditions. Explicitly report conflicting viewpoints or version differences neutrally if sources disagree.
+4. **High Information Density:** Start directly with a 1–2 sentence core answer or definition. Eliminate introductory filler (e.g., "Based on the provided sources..."), transitional prose, and closing meta-commentary.
+5. **Formatting:** Use clean Markdown: short sections, inline code spans for technical identifiers, and bullet points starting with **Bold Key Terms:** followed by concise facts.
+6. **Strict Abstention:** If the provided sources do not contain enough information to answer the query or a part of it, briefly state what is missing and stop. Do not speculate or fall back on general knowledge.`;
 
 const queryDisplay = document.getElementById("queryDisplay");
 const outputDiv = document.getElementById("output");
@@ -33,7 +42,7 @@ let savedModel = "";
 let savedHelperModel = "";
 let availableLocales = [];
 let i18n = {};
-let knownDefaultPrompts = new Set([DEFAULT_SYSTEM_PROMPT]);
+let knownDefaultPrompts = new Set([DEFAULT_SYSTEM_PROMPT, LEGACY_DEFAULT_SYSTEM_PROMPT]);
 let hasSearchedYet = false;
 let lastQuery = "";
 
@@ -602,9 +611,11 @@ saveConfigBtn.addEventListener("click", () => {
     populateLanguageDropdowns(uiLanguage, responseLanguage);
     await applyUiLanguage(uiLanguage);
 
-    const systemPrompt = (stored.systemPrompt && stored.systemPrompt.trim())
-        ? stored.systemPrompt
-        : t("defaultSystemPrompt", DEFAULT_SYSTEM_PROMPT);
+    const storedPromptTrimmed = (stored.systemPrompt || "").trim();
+    const isLegacyOrDefault = !storedPromptTrimmed || knownDefaultPrompts.has(storedPromptTrimmed);
+    const systemPrompt = isLegacyOrDefault
+        ? t("defaultSystemPrompt", DEFAULT_SYSTEM_PROMPT)
+        : storedPromptTrimmed;
     savedModel = stored.mainModel || "";
     savedHelperModel = stored.helperModel || "";
     ollamaEndpointInput.value = endpoint;
@@ -620,7 +631,7 @@ saveConfigBtn.addEventListener("click", () => {
     helperModelField.style.display = queryExpansion ? "block" : "none";
     systemPromptInput.value = systemPrompt;
 
-    if (!stored.systemPrompt || !stored.contextSize || !stored.maxSources || !stored.uiLanguage || stored.includeCitations === undefined) {
+    if (!stored.systemPrompt || storedPromptTrimmed === LEGACY_DEFAULT_SYSTEM_PROMPT || !stored.contextSize || !stored.maxSources || !stored.uiLanguage || stored.includeCitations === undefined) {
         await browser.storage.local.set({
             uiLanguage,
             responseLanguage,

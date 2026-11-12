@@ -39,7 +39,6 @@
   "generatingOverview": "*Generazione panoramica...*",
   "searchPrefix": "Ricerca: ",
   "queryingModels": "Ricerca modelli...",
-  "savedPrefix": "Salvato",
-  "defaultSystemPrompt": "Sei un assistente di ricerca utile e attento alla privacy. Utilizzando le fonti web fornite, scrivi una panoramica chiara, concisa e accurata che risponda direttamente alla ricerca dell'utente in formato Markdown. Sintetizza i fatti chiave in modo obiettivo evitando speculazioni."
+  "savedPrefix": "Salvato"
 }
 

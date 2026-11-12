@@ -39,7 +39,6 @@
   "generatingOverview": "*Generando resumen...*",
   "searchPrefix": "Búsqueda: ",
   "queryingModels": "Consultando modelos...",
-  "savedPrefix": "Guardado",
-  "defaultSystemPrompt": "Eres un asistente de búsqueda útil y centrado en la privacidad. Utilizando las fuentes web proporcionadas, escribe un resumen claro, conciso y preciso que responda directamente a la consulta del usuario en formato Markdown limpio. Sintetiza los hechos clave con objetividad y evita especular."
+  "savedPrefix": "Guardado"
 }
 
