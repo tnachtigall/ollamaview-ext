@@ -318,38 +318,46 @@
 </head>
 <body>
   <div class="header-row">
-    <h3>AI Overview</h3>
-    <button id="configToggleBtn" type="button">⚙ Config</button>
+    <h3 data-i18n="title">AI Overview</h3>
+    <button id="configToggleBtn" type="button" data-i18n="configBtn">⚙ Config</button>
   </div>
-  <h4 class="subtitle">powered by ollama</h4>
+  <h4 class="subtitle" data-i18n="subtitle">powered by ollama</h4>
 
   <div id="configPanel">
     <div class="field">
-      <label for="ollamaEndpoint">Ollama Endpoint</label>
+      <label for="ollamaEndpoint" data-i18n="endpointLabel">Ollama Endpoint</label>
       <div class="input-row">
         <input id="ollamaEndpoint" type="text" placeholder="http://127.0.0.1:11434" />
-        <button id="fetchModelsBtn" type="button">Fetch</button>
+        <button id="fetchModelsBtn" type="button" data-i18n="fetchBtn">Fetch</button>
       </div>
     </div>
     <div class="field">
-      <label for="modelSelect">Model</label>
+      <label for="modelSelect" data-i18n="modelLabel">Model</label>
       <select id="modelSelect">
-        <option value="">-- Fetch models first --</option>
+        <option value="" data-i18n="fetchModelsFirst">-- Fetch models first --</option>
       </select>
+    </div>
+    <div class="field">
+      <label for="uiLanguageSelect" data-i18n="uiLanguageLabel">UI Language</label>
+      <select id="uiLanguageSelect"></select>
+    </div>
+    <div class="field">
+      <label for="responseLanguageSelect" data-i18n="responseLanguageLabel">AI Response Language</label>
+      <select id="responseLanguageSelect"></select>
     </div>
 
     <div class="checkbox-row">
       <span class="label-left">
-        <label for="thinkingMode" style="margin:0; cursor:pointer;">Thinking Mode</label>
+        <label for="thinkingMode" style="margin:0; cursor:pointer;" data-i18n="thinkingModeLabel">Thinking Mode</label>
         <span class="tooltip-wrap" tabindex="0" aria-label="Thinking mode info">ⓘ
-          <span class="tooltip-box">Allow reasoning models (e.g. Gemma 4, Qwen 3) to think before answering. Improves complex reasoning, but increases wait time before the answer starts.</span>
+          <span class="tooltip-box" data-i18n="thinkingTooltip">Allow reasoning models (e.g. Gemma 4, Qwen 3) to think before answering. Improves complex reasoning, but increases wait time before the answer starts.</span>
         </span>
       </span>
       <input id="thinkingMode" type="checkbox" />
     </div>
 
     <div class="checkbox-row">
-      <label for="advancedToggle" style="margin:0; cursor:pointer;">Advanced Settings</label>
+      <label for="advancedToggle" style="margin:0; cursor:pointer;" data-i18n="advancedSettingsLabel">Advanced Settings</label>
       <input id="advancedToggle" type="checkbox" />
     </div>
 
@@ -357,9 +365,9 @@
       <div class="field">
         <label for="maxSources">
           <span class="label-left">
-            Sources
+            <span data-i18n="sourcesLabel">Sources</span>
             <span class="tooltip-wrap" tabindex="0" aria-label="Scraped sources tradeoff info">ⓘ
-              <span class="tooltip-box">Fewer sources = faster fetch &amp; deeper excerpts per page. More sources = broader synthesis across sites, with shorter excerpts per page.</span>
+              <span class="tooltip-box" data-i18n="sourcesTooltip">Fewer sources = faster fetch &amp; deeper excerpts per page. More sources = broader synthesis across sites, with shorter excerpts per page.</span>
             </span>
           </span>
           <span id="maxSourcesValue" class="label-value">5 sources (Balanced)</span>
@@ -369,9 +377,9 @@
       <div class="field">
         <label for="contextSize">
           <span class="label-left">
-            Context Size
+            <span data-i18n="contextSizeLabel">Context Size</span>
             <span class="tooltip-wrap" tabindex="0" aria-label="Context size tradeoff info">ⓘ
-              <span class="tooltip-box">Smaller = faster first token &amp; lower VRAM. Larger = reads deeper into long articles, but increases prompt processing time.</span>
+              <span class="tooltip-box" data-i18n="contextSizeTooltip">Smaller = faster first token &amp; lower VRAM. Larger = reads deeper into long articles, but increases prompt processing time.</span>
             </span>
           </span>
           <span id="contextSizeValue" class="label-value">4096 tokens (Balanced)</span>
@@ -380,23 +388,23 @@
       </div>
       <div class="checkbox-row">
         <span class="label-left">
-          <label for="queryExpansion" style="margin:0; cursor:pointer;">Query Expansion</label>
+          <label for="queryExpansion" style="margin:0; cursor:pointer;" data-i18n="queryExpansionLabel">Query Expansion</label>
           <span class="tooltip-wrap" tabindex="0" aria-label="Query expansion info">ⓘ
-            <span class="tooltip-box">Use a fast secondary model (e.g. 1B–3B) in parallel to generate targeted subqueries, expand BM25 keywords, and discover additional sources.</span>
+            <span class="tooltip-box" data-i18n="queryExpansionTooltip">Use a fast secondary model (e.g. 1B–3B) in parallel to generate targeted subqueries, expand BM25 keywords, and discover additional sources.</span>
           </span>
         </span>
         <input id="queryExpansion" type="checkbox" />
       </div>
       <div id="helperModelField" class="field" style="display:none;">
-        <label for="helperModelSelect">Expansion Helper Model</label>
+        <label for="helperModelSelect" data-i18n="helperModelLabel">Expansion Helper Model</label>
         <select id="helperModelSelect">
-          <option value="">-- Fetch models first --</option>
+          <option value="" data-i18n="fetchModelsFirst">-- Fetch models first --</option>
         </select>
       </div>
       <div class="field">
         <label for="systemPrompt">
-          <span>System Prompt</span>
-          <button id="resetPromptBtn" class="link-btn" type="button">Reset</button>
+          <span data-i18n="systemPromptLabel">System Prompt</span>
+          <button id="resetPromptBtn" class="link-btn" type="button" data-i18n="resetBtn">Reset</button>
         </label>
         <textarea id="systemPrompt" rows="5"></textarea>
       </div>
@@ -404,12 +412,12 @@
 
     <div class="actions-row">
       <span id="configStatus"></span>
-      <button id="saveConfigBtn" type="button">Save</button>
+      <button id="saveConfigBtn" type="button" data-i18n="saveBtn">Save</button>
     </div>
   </div>
 
-  <div id="queryDisplay">Waiting for a search...</div>
-  <div id="output">Results will appear here.</div>
+  <div id="queryDisplay" data-i18n="waitingForSearch">Waiting for a search...</div>
+  <div id="output" data-i18n="resultsAppearHere">Results will appear here.</div>
   
   <script src="sidebar.js"></script>
 </body>

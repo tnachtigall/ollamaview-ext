@@ -1,0 +1,17 @@
+{
+  "locales": [
+    { "code": "en", "name": "English", "promptName": "English" },
+    { "code": "de", "name": "Deutsch", "promptName": "German (Deutsch)" },
+    { "code": "fr", "name": "Français", "promptName": "French (Français)" },
+    { "code": "es", "name": "Español", "promptName": "Spanish (Español)" },
+    { "code": "it", "name": "Italiano", "promptName": "Italian (Italiano)" },
+    { "code": "pt", "name": "Português", "promptName": "Portuguese (Português)" },
+    { "code": "nl", "name": "Nederlands", "promptName": "Dutch (Nederlands)" },
+    { "code": "pl", "name": "Polski", "promptName": "Polish (Polski)" },
+    { "code": "ru", "name": "Русский", "promptName": "Russian (Русский)" },
+    { "code": "zh", "name": "中文 (简体)", "promptName": "Simplified Chinese (简体中文)" },
+    { "code": "ja", "name": "日本語", "promptName": "Japanese (日本語)" },
+    { "code": "ko", "name": "한국어", "promptName": "Korean (한국어)" },
+    { "code": "hi", "name": "हिन्दी", "promptName": "Hindi (हिन्दी)" }
+  ]
+}

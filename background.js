@@ -179,6 +179,7 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
                 const stored = await browser.storage.local.get([
                     "ollamaInstance",
                     "mainModel",
+                    "responseLanguage",
                     "thinkingMode",
                     "maxSources",
                     "contextSize",
@@ -188,6 +189,7 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
                 ]);
                 const ollamaInstance = (stored.ollamaInstance || DEFAULT_OLLAMA_INSTANCE).trim();
                 const mainModel = (stored.mainModel || "").trim();
+                const responseLanguage = (stored.responseLanguage || "auto").trim();
                 const thinkingMode = Boolean(stored.thinkingMode);
                 const maxSources = Math.min(8, Math.max(2, Number(stored.maxSources) || DEFAULT_MAX_SOURCES));
                 const contextSize = Number(stored.contextSize) || DEFAULT_CONTEXT_SIZE;
@@ -225,6 +227,7 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
                     urls: urls,
                     ollamaInstance: ollamaInstance,
                     mainModel: mainModel,
+                    responseLanguage: responseLanguage,
                     thinkingMode: thinkingMode,
                     maxSources: maxSources,
                     contextSize: contextSize,

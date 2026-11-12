@@ -11,6 +11,8 @@ const configPanel = document.getElementById("configPanel");
 const ollamaEndpointInput = document.getElementById("ollamaEndpoint");
 const fetchModelsBtn = document.getElementById("fetchModelsBtn");
 const modelSelect = document.getElementById("modelSelect");
+const uiLanguageSelect = document.getElementById("uiLanguageSelect");
+const responseLanguageSelect = document.getElementById("responseLanguageSelect");
 const thinkingModeInput = document.getElementById("thinkingMode");
 const advancedToggleInput = document.getElementById("advancedToggle");
 const advancedSection = document.getElementById("advancedSection");
@@ -28,6 +30,11 @@ const configStatus = document.getElementById("configStatus");
 
 let savedModel = "";
 let savedHelperModel = "";
+let availableLocales = [];
+let i18n = {};
+let knownDefaultPrompts = new Set([DEFAULT_SYSTEM_PROMPT]);
+let hasSearchedYet = false;
+let lastQuery = "";
 
 // --- Firefox Theme Synchronization ---
 function applyFirefoxTheme(theme) {
@@ -285,6 +292,96 @@ function renderMarkdown(container, markdown) {
     }
 }
 
+function t(key, fallback) {
+    return (i18n && i18n[key]) ? i18n[key] : fallback;
+}
+
+async function loadLocaleRegistry() {
+    try {
+        const res = await fetch(browser.runtime.getURL("locales/index.json"));
+        const data = await res.json();
+        availableLocales = data.locales || [];
+    } catch (e) {
+        availableLocales = [{ code: "en", name: "English", promptName: "English" }];
+    }
+}
+
+function populateLanguageDropdowns(selectedUiLang, selectedRespLang) {
+    uiLanguageSelect.replaceChildren();
+    responseLanguageSelect.replaceChildren();
+
+    const autoOpt = document.createElement("option");
+    autoOpt.value = "auto";
+    autoOpt.textContent = t("responseLangAuto", "Auto (Match Search Query)");
+    responseLanguageSelect.appendChild(autoOpt);
+
+    for (const loc of availableLocales) {
+        const uiOpt = document.createElement("option");
+        uiOpt.value = loc.code;
+        uiOpt.textContent = loc.name;
+        uiLanguageSelect.appendChild(uiOpt);
+
+        const respOpt = document.createElement("option");
+        respOpt.value = loc.promptName;
+        respOpt.textContent = loc.name;
+        responseLanguageSelect.appendChild(respOpt);
+    }
+
+    if (availableLocales.some(l => l.code === selectedUiLang)) {
+        uiLanguageSelect.value = selectedUiLang;
+    } else {
+        uiLanguageSelect.value = "en";
+    }
+
+    if (selectedRespLang && Array.from(responseLanguageSelect.options).some(o => o.value === selectedRespLang)) {
+        responseLanguageSelect.value = selectedRespLang;
+    } else {
+        responseLanguageSelect.value = "auto";
+    }
+}
+
+async function applyUiLanguage(langCode) {
+    const code = availableLocales.some(l => l.code === langCode) ? langCode : "en";
+    try {
+        const res = await fetch(browser.runtime.getURL(`locales/${code}.json`));
+        i18n = await res.json();
+        if (i18n.defaultSystemPrompt) {
+            knownDefaultPrompts.add(i18n.defaultSystemPrompt);
+        }
+    } catch (e) {
+        console.warn("Could not load locale:", code, e);
+        return;
+    }
+
+    document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.getAttribute("data-i18n");
+        if (!key) return;
+        if ((el.id === "queryDisplay" || el.id === "output") && hasSearchedYet) {
+            return;
+        }
+        if (i18n[key]) {
+            el.textContent = i18n[key];
+        }
+    });
+
+    const autoOpt = responseLanguageSelect.querySelector('option[value="auto"]');
+    if (autoOpt && i18n.responseLangAuto) {
+        autoOpt.textContent = i18n.responseLangAuto;
+    }
+
+    maxSourcesValue.textContent = formatSourcesLabel(maxSourcesInput.value);
+    contextSizeValue.textContent = formatContextLabel(contextSizeInput.value);
+    if (hasSearchedYet && lastQuery) {
+        queryDisplay.textContent = t("searchPrefix", "Search: ") + lastQuery;
+    }
+
+    // If user hasn't customized the system prompt away from a built-in default, localize it too
+    const currentPrompt = (systemPromptInput.value || "").trim();
+    if (!currentPrompt || knownDefaultPrompts.has(currentPrompt)) {
+        systemPromptInput.value = t("defaultSystemPrompt", DEFAULT_SYSTEM_PROMPT);
+    }
+}
+
 function setConfigStatus(text, isError = false) {
     configStatus.textContent = text;
     configStatus.style.color = isError ? "var(--error)" : "var(--muted)";
@@ -295,7 +392,7 @@ function populateSelectElement(selectEl, models, preferredModel) {
     if (!models || models.length === 0) {
         const opt = document.createElement("option");
         opt.value = "";
-        opt.textContent = "-- No models available --";
+        opt.textContent = t("noModelsAvailable", "-- No models available --");
         selectEl.appendChild(opt);
         return "";
     }
@@ -324,7 +421,7 @@ function populateModelsDropdown(models, preferredModel, preferredHelperModel) {
 function requestModels(endpoint) {
     const cleanEndpoint = (endpoint || DEFAULT_OLLAMA_INSTANCE).trim();
     ollamaEndpointInput.value = cleanEndpoint;
-    setConfigStatus("Querying models...");
+    setConfigStatus(t("queryingModels", "Querying models..."));
     browser.runtime.sendMessage({
         type: "FETCH_MODELS",
         ollamaInstance: cleanEndpoint
@@ -336,34 +433,37 @@ function requestModels(endpoint) {
 function formatSourcesLabel(val) {
     const n = Number(val) || DEFAULT_MAX_SOURCES;
     const maxVal = Number(maxSourcesInput.max) || 8;
-    let tier = "Balanced";
-    if (n <= 3) tier = "Focused";
-    else if (n <= 5) tier = "Balanced";
-    else if (n < maxVal) tier = "Broad";
-    else tier = "Max Breadth";
-    return `${n} sources (${tier})`;
+    let tier = t("tierBalanced", "Balanced");
+    if (n <= 3) tier = t("tierFocused", "Focused");
+    else if (n <= 5) tier = t("tierBalanced", "Balanced");
+    else if (n < maxVal) tier = t("tierBroad", "Broad");
+    else tier = t("tierMaxBreadth", "Max Breadth");
+    return `${n} ${t("sourcesUnit", "sources")} (${tier})`;
 }
 
 function formatContextLabel(val) {
     const n = Number(val) || DEFAULT_CONTEXT_SIZE;
-    let tier = "Balanced";
-    if (n <= 2048) tier = "Fastest";
-    else if (n <= 4096) tier = "Balanced";
-    else if (n <= 6144) tier = "Deep";
-    else tier = "Max Depth";
-    return `${n} tokens (${tier})`;
+    let tier = t("tierBalanced", "Balanced");
+    if (n <= 2048) tier = t("tierFastest", "Fastest");
+    else if (n <= 4096) tier = t("tierBalanced", "Balanced");
+    else if (n <= 6144) tier = t("tierDeep", "Deep");
+    else tier = t("tierMaxDepth", "Max Depth");
+    return `${n} ${t("tokensUnit", "tokens")} (${tier})`;
 }
 
 async function saveConfig() {
     const ollamaInstance = (ollamaEndpointInput.value || DEFAULT_OLLAMA_INSTANCE).trim();
     const mainModel = (modelSelect.value || "").trim();
+    const uiLanguage = uiLanguageSelect.value || "en";
+    const responseLanguage = responseLanguageSelect.value || "auto";
     const thinkingMode = Boolean(thinkingModeInput.checked);
     const advancedMode = Boolean(advancedToggleInput.checked);
     const maxSources = Math.min(8, Math.max(2, Number(maxSourcesInput.value) || DEFAULT_MAX_SOURCES));
     const contextSize = Math.min(8192, Math.max(2048, Number(contextSizeInput.value) || DEFAULT_CONTEXT_SIZE));
     const queryExpansion = Boolean(queryExpansionInput.checked);
     const helperModel = (helperModelSelect.value || "").trim();
-    const systemPrompt = (systemPromptInput.value || "").trim() || DEFAULT_SYSTEM_PROMPT;
+    const fallbackPrompt = t("defaultSystemPrompt", DEFAULT_SYSTEM_PROMPT);
+    const systemPrompt = (systemPromptInput.value || "").trim() || fallbackPrompt;
     systemPromptInput.value = systemPrompt;
     maxSourcesValue.textContent = formatSourcesLabel(maxSources);
     contextSizeValue.textContent = formatContextLabel(contextSize);
@@ -372,6 +472,8 @@ async function saveConfig() {
     await browser.storage.local.set({
         ollamaInstance,
         mainModel,
+        uiLanguage,
+        responseLanguage,
         thinkingMode,
         advancedMode,
         maxSources,
@@ -380,7 +482,8 @@ async function saveConfig() {
         helperModel,
         systemPrompt
     });
-    setConfigStatus(mainModel ? `Saved (${mainModel})` : "Saved config");
+    const savedWord = t("savedPrefix", "Saved");
+    setConfigStatus(mainModel ? `${savedWord} (${mainModel})` : savedWord);
 }
 
 configToggleBtn.addEventListener("click", () => {
@@ -398,6 +501,15 @@ ollamaEndpointInput.addEventListener("keydown", (e) => {
 });
 
 modelSelect.addEventListener("change", () => {
+    saveConfig();
+});
+
+uiLanguageSelect.addEventListener("change", async () => {
+    await applyUiLanguage(uiLanguageSelect.value);
+    await saveConfig();
+});
+
+responseLanguageSelect.addEventListener("change", () => {
     saveConfig();
 });
 
@@ -420,7 +532,7 @@ helperModelSelect.addEventListener("change", () => {
 });
 
 resetPromptBtn.addEventListener("click", () => {
-    systemPromptInput.value = DEFAULT_SYSTEM_PROMPT;
+    systemPromptInput.value = t("defaultSystemPrompt", DEFAULT_SYSTEM_PROMPT);
     saveConfig();
 });
 
@@ -446,9 +558,12 @@ saveConfigBtn.addEventListener("click", () => {
 
 // Initialize config state on sidebar load
 (async function initConfig() {
+    await loadLocaleRegistry();
     const stored = await browser.storage.local.get([
         "ollamaInstance",
         "mainModel",
+        "uiLanguage",
+        "responseLanguage",
         "thinkingMode",
         "advancedMode",
         "maxSources",
@@ -457,15 +572,23 @@ saveConfigBtn.addEventListener("click", () => {
         "helperModel",
         "systemPrompt"
     ]);
+    const browserLang = (navigator.language || "en").slice(0, 2).toLowerCase();
+    const defaultUiLang = availableLocales.some(l => l.code === browserLang) ? browserLang : "en";
+    const uiLanguage = stored.uiLanguage || defaultUiLang;
+    const responseLanguage = stored.responseLanguage || "auto";
     const endpoint = stored.ollamaInstance || DEFAULT_OLLAMA_INSTANCE;
     const thinkingMode = Boolean(stored.thinkingMode);
     const advancedMode = Boolean(stored.advancedMode);
     const maxSources = Math.min(8, Math.max(2, Number(stored.maxSources) || DEFAULT_MAX_SOURCES));
     const contextSize = Math.min(8192, Math.max(2048, Number(stored.contextSize) || DEFAULT_CONTEXT_SIZE));
     const queryExpansion = Boolean(stored.queryExpansion);
+
+    populateLanguageDropdowns(uiLanguage, responseLanguage);
+    await applyUiLanguage(uiLanguage);
+
     const systemPrompt = (stored.systemPrompt && stored.systemPrompt.trim())
         ? stored.systemPrompt
-        : DEFAULT_SYSTEM_PROMPT;
+        : t("defaultSystemPrompt", DEFAULT_SYSTEM_PROMPT);
     savedModel = stored.mainModel || "";
     savedHelperModel = stored.helperModel || "";
     ollamaEndpointInput.value = endpoint;
@@ -480,8 +603,17 @@ saveConfigBtn.addEventListener("click", () => {
     helperModelField.style.display = queryExpansion ? "block" : "none";
     systemPromptInput.value = systemPrompt;
 
-    if (!stored.systemPrompt || !stored.contextSize || !stored.maxSources) {
-        await browser.storage.local.set({ systemPrompt, maxSources, contextSize, thinkingMode, advancedMode, queryExpansion });
+    if (!stored.systemPrompt || !stored.contextSize || !stored.maxSources || !stored.uiLanguage) {
+        await browser.storage.local.set({
+            uiLanguage,
+            responseLanguage,
+            systemPrompt,
+            maxSources,
+            contextSize,
+            thinkingMode,
+            advancedMode,
+            queryExpansion
+        });
     }
 
     if (!savedModel) {
@@ -530,15 +662,19 @@ browser.runtime.onMessage.addListener(async (response) => {
         }
     }
     else if (response.type === "RUST_REPLY") {
+        hasSearchedYet = true;
         const msg = response.message ?? response.text ?? "";
         scheduleMarkdownRender(msg);
         if (response.received_query) {
-            queryDisplay.textContent = "Search: " + response.received_query;
+            lastQuery = response.received_query;
+            queryDisplay.textContent = t("searchPrefix", "Search: ") + response.received_query;
         }
     }
     else if (response.type === "THINKING") {
-        scheduleMarkdownRender("*Generating overview...*");
-        queryDisplay.textContent = "Search: " + response.query;
+        hasSearchedYet = true;
+        lastQuery = response.query || "";
+        scheduleMarkdownRender(t("generatingOverview", "*Generating overview...*"));
+        queryDisplay.textContent = t("searchPrefix", "Search: ") + lastQuery;
     }
     else {
         // Fallback for debugging if it's still a simple string
