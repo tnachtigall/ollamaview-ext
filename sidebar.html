@@ -305,6 +305,18 @@
       </select>
     </div>
     <div class="field">
+      <label for="maxSources">
+        <span class="label-left">
+          Sources
+          <span class="tooltip-wrap" tabindex="0" aria-label="Scraped sources tradeoff info">ⓘ
+            <span class="tooltip-box">Fewer sources = faster fetch &amp; deeper excerpts per page. More sources = broader synthesis across sites, with shorter excerpts per page.</span>
+          </span>
+        </span>
+        <span id="maxSourcesValue" class="label-value">5 sources (Balanced)</span>
+      </label>
+      <input id="maxSources" type="range" min="2" max="8" step="1" value="5" />
+    </div>
+    <div class="field">
       <label for="contextSize">
         <span class="label-left">
           Context Size

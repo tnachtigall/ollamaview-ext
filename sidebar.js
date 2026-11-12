@@ -1,5 +1,6 @@
 
 const DEFAULT_OLLAMA_INSTANCE = "http://127.0.0.1:11434";
+const DEFAULT_MAX_SOURCES = 5;
 const DEFAULT_CONTEXT_SIZE = 4096;
 const DEFAULT_SYSTEM_PROMPT = "You are a helpful, privacy-focused search assistant. Using the provided web search sources, write a clear, concise, and accurate overview that directly answers the user's search query. Format your response in clean Markdown (such as bullet points, bold key terms, and short sections where helpful). Synthesize key facts from the sources, stay objective, and avoid speculation. If the sources do not contain enough information to fully answer the query, briefly state what is missing and provide the best helpful answer you can.";
 
@@ -10,6 +11,8 @@ const configPanel = document.getElementById("configPanel");
 const ollamaEndpointInput = document.getElementById("ollamaEndpoint");
 const fetchModelsBtn = document.getElementById("fetchModelsBtn");
 const modelSelect = document.getElementById("modelSelect");
+const maxSourcesInput = document.getElementById("maxSources");
+const maxSourcesValue = document.getElementById("maxSourcesValue");
 const contextSizeInput = document.getElementById("contextSize");
 const contextSizeValue = document.getElementById("contextSizeValue");
 const systemPromptInput = document.getElementById("systemPrompt");
@@ -316,6 +319,17 @@ function requestModels(endpoint) {
     });
 }
 
+function formatSourcesLabel(val) {
+    const n = Number(val) || DEFAULT_MAX_SOURCES;
+    const maxVal = Number(maxSourcesInput.max) || 8;
+    let tier = "Balanced";
+    if (n <= 3) tier = "Focused";
+    else if (n <= 5) tier = "Balanced";
+    else if (n < maxVal) tier = "Broad";
+    else tier = "Max Breadth";
+    return `${n} sources (${tier})`;
+}
+
 function formatContextLabel(val) {
     const n = Number(val) || DEFAULT_CONTEXT_SIZE;
     let tier = "Balanced";
@@ -329,12 +343,14 @@ function formatContextLabel(val) {
 async function saveConfig() {
     const ollamaInstance = (ollamaEndpointInput.value || DEFAULT_OLLAMA_INSTANCE).trim();
     const mainModel = (modelSelect.value || "").trim();
+    const maxSources = Math.min(8, Math.max(2, Number(maxSourcesInput.value) || DEFAULT_MAX_SOURCES));
     const contextSize = Math.min(8192, Math.max(2048, Number(contextSizeInput.value) || DEFAULT_CONTEXT_SIZE));
     const systemPrompt = (systemPromptInput.value || "").trim() || DEFAULT_SYSTEM_PROMPT;
     systemPromptInput.value = systemPrompt;
+    maxSourcesValue.textContent = formatSourcesLabel(maxSources);
     contextSizeValue.textContent = formatContextLabel(contextSize);
     savedModel = mainModel;
-    await browser.storage.local.set({ ollamaInstance, mainModel, contextSize, systemPrompt });
+    await browser.storage.local.set({ ollamaInstance, mainModel, maxSources, contextSize, systemPrompt });
     setConfigStatus(mainModel ? `Saved (${mainModel})` : "Saved config");
 }
 
@@ -356,6 +372,14 @@ modelSelect.addEventListener("change", () => {
     saveConfig();
 });
 
+maxSourcesInput.addEventListener("input", () => {
+    maxSourcesValue.textContent = formatSourcesLabel(maxSourcesInput.value);
+});
+
+maxSourcesInput.addEventListener("change", () => {
+    saveConfig();
+});
+
 contextSizeInput.addEventListener("input", () => {
     contextSizeValue.textContent = formatContextLabel(contextSizeInput.value);
 });
@@ -370,20 +394,23 @@ saveConfigBtn.addEventListener("click", () => {
 
 // Initialize config state on sidebar load
 (async function initConfig() {
-    const stored = await browser.storage.local.get(["ollamaInstance", "mainModel", "contextSize", "systemPrompt"]);
+    const stored = await browser.storage.local.get(["ollamaInstance", "mainModel", "maxSources", "contextSize", "systemPrompt"]);
     const endpoint = stored.ollamaInstance || DEFAULT_OLLAMA_INSTANCE;
+    const maxSources = Math.min(8, Math.max(2, Number(stored.maxSources) || DEFAULT_MAX_SOURCES));
     const contextSize = Math.min(8192, Math.max(2048, Number(stored.contextSize) || DEFAULT_CONTEXT_SIZE));
     const systemPrompt = (stored.systemPrompt && stored.systemPrompt.trim())
         ? stored.systemPrompt
         : DEFAULT_SYSTEM_PROMPT;
     savedModel = stored.mainModel || "";
     ollamaEndpointInput.value = endpoint;
+    maxSourcesInput.value = maxSources;
+    maxSourcesValue.textContent = formatSourcesLabel(maxSources);
     contextSizeInput.value = contextSize;
     contextSizeValue.textContent = formatContextLabel(contextSize);
     systemPromptInput.value = systemPrompt;
 
-    if (!stored.systemPrompt || !stored.contextSize) {
-        await browser.storage.local.set({ systemPrompt, contextSize });
+    if (!stored.systemPrompt || !stored.contextSize || !stored.maxSources) {
+        await browser.storage.local.set({ systemPrompt, maxSources, contextSize });
     }
 
     if (!savedModel) {

@@ -1,5 +1,6 @@
 const HOST_NAME = "com.till.ollamaview";
 const DEFAULT_OLLAMA_INSTANCE = "http://127.0.0.1:11434";
+const DEFAULT_MAX_SOURCES = 5;
 const DEFAULT_CONTEXT_SIZE = 4096;
 const DEFAULT_SYSTEM_PROMPT = "You are a helpful, privacy-focused search assistant. Using the provided web search sources, write a clear, concise, and accurate overview that directly answers the user's search query. Format your response in clean Markdown (such as bullet points, bold key terms, and short sections where helpful). Synthesize key facts from the sources, stay objective, and avoid speculation. If the sources do not contain enough information to fully answer the query, briefly state what is missing and provide the best helpful answer you can.";
 let rustPort = null;
@@ -65,16 +66,14 @@ browser.runtime.onMessage.addListener((msg) => {
 });
 
 // top n url scraper
-let maxResults = 5; // TODO: add this variable to a config page / file
-
-async function getTopSearchResults(targetTabId) {
+async function getTopSearchResults(targetTabId, candidateLimit) {
     try {
         if (!targetTabId) return [];
 
         // inject scraping function
         const injectionResults = await browser.scripting.executeScript({
             target: {tabId: targetTabId},
-            args: [maxResults],
+            args: [candidateLimit],
             func: async (limit) => {
                 // Google: '#search .g a:has(h3)', '#search a:has(h3)'
                 // DuckDuckGo: 'a[data-testid="result-title-a"]'
@@ -177,9 +176,10 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
             const query = url.searchParams.get("q");
 
             if (query) {
-                const stored = await browser.storage.local.get(["ollamaInstance", "mainModel", "contextSize", "systemPrompt"]);
+                const stored = await browser.storage.local.get(["ollamaInstance", "mainModel", "maxSources", "contextSize", "systemPrompt"]);
                 const ollamaInstance = (stored.ollamaInstance || DEFAULT_OLLAMA_INSTANCE).trim();
                 const mainModel = (stored.mainModel || "").trim();
+                const maxSources = Math.min(8, Math.max(2, Number(stored.maxSources) || DEFAULT_MAX_SOURCES));
                 const contextSize = Number(stored.contextSize) || DEFAULT_CONTEXT_SIZE;
                 const systemPrompt = (stored.systemPrompt || DEFAULT_SYSTEM_PROMPT).trim();
 
@@ -205,13 +205,15 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
                 browser.runtime.sendMessage({ type: "THINKING", query: query })
                     .catch(err => console.warn("Sidebar not ready/open to receive THINKING state."));
 
-                const urls = await getTopSearchResults(tabId);
+                // Scrape extra fallback URLs in case sites block scrapers, return cookie stubs, or time out
+                const urls = await getTopSearchResults(tabId, maxSources + 3);
 
                 const payload = {
                     query: query,
                     urls: urls,
                     ollamaInstance: ollamaInstance,
                     mainModel: mainModel,
+                    maxSources: maxSources,
                     contextSize: contextSize,
                     systemPrompt: systemPrompt
                 };
