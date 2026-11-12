@@ -12,6 +12,8 @@
   "responseLangAuto": "自动 (匹配搜索语言)",
   "thinkingModeLabel": "深度思考模式",
   "thinkingTooltip": "允许推理模型（如 Gemma 4、Qwen 3）在回答前进行思考。可提升复杂推理质量，但会增加首字响应等待时间。",
+  "citationsLabel": "包含引用链接",
+  "citationsTooltip": "在概述中添加可点击的内联引用标注 [1]、[2] 以及底部来源链接列表。",
   "advancedSettingsLabel": "高级设置",
   "sourcesLabel": "参考来源数",
   "sourcesTooltip": "来源越少 = 抓取越快且单页摘录更深。来源越多 = 跨站点综合更广，但单页摘录较短。",

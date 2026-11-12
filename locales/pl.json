@@ -12,6 +12,8 @@
   "responseLangAuto": "Auto (Zgodnie z zapytaniem)",
   "thinkingModeLabel": "Tryb myślenia",
   "thinkingTooltip": "Pozwala modelom rozumującym (np. Gemma 4, Qwen 3) pomyśleć przed odpowiedzią. Poprawia złożone wnioskowanie, ale wydłuża czas oczekiwania.",
+  "citationsLabel": "Dołącz przypisy",
+  "citationsTooltip": "Wspiera twierdzenia klikalnymi przypisami [1], [2] oraz listą linków do źródeł.",
   "advancedSettingsLabel": "Ustawienia zaawansowane",
   "sourcesLabel": "Źródła",
   "sourcesTooltip": "Mniej źródeł = szybsze pobieranie i głębsze fragmenty. Więcej źródeł = szersza synteza z krótszymi fragmentami.",

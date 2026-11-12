@@ -12,6 +12,8 @@
   "responseLangAuto": "Automático (Igual à Pesquisa)",
   "thinkingModeLabel": "Modo de Raciocínio",
   "thinkingTooltip": "Permite que modelos de raciocínio (ex. Gemma 4, Qwen 3) pensem antes de responder. Melhora respostas complexas, mas aumenta o tempo até a primeira palavra.",
+  "citationsLabel": "Incluir Citações",
+  "citationsTooltip": "Apoia as afirmações com citações clicáveis [1], [2] e uma lista de links para as fontes.",
   "advancedSettingsLabel": "Configurações Avançadas",
   "sourcesLabel": "Fontes",
   "sourcesTooltip": "Menos fontes = busca mais rápida e trechos mais profundos. Mais fontes = síntese mais ampla entre sites com trechos menores.",

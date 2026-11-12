@@ -12,6 +12,8 @@
   "responseLangAuto": "自動 (検索クエリに合わせる)",
   "thinkingModeLabel": "思考モード (Thinking)",
   "thinkingTooltip": "推論モデル（Gemma 4、Qwen 3など）が回答前に思考できるようにします。複雑な推論が向上しますが、最初の文字が表示されるまでの待ち時間が増えます。",
+  "citationsLabel": "引用リンクを含める",
+  "citationsTooltip": "回答内の主張にクリック可能な引用番号 [1], [2] と参照元リンクリストを追加します。",
   "advancedSettingsLabel": "詳細設定",
   "sourcesLabel": "ソース数",
   "sourcesTooltip": "少ない = 取得が速く各ページを深く抽出。多い = 複数サイトから幅広く統合（各ページの抜粋は短め）。",

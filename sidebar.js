@@ -14,6 +14,7 @@ const modelSelect = document.getElementById("modelSelect");
 const uiLanguageSelect = document.getElementById("uiLanguageSelect");
 const responseLanguageSelect = document.getElementById("responseLanguageSelect");
 const thinkingModeInput = document.getElementById("thinkingMode");
+const includeCitationsInput = document.getElementById("includeCitations");
 const advancedToggleInput = document.getElementById("advancedToggle");
 const advancedSection = document.getElementById("advancedSection");
 const maxSourcesInput = document.getElementById("maxSources");
@@ -107,7 +108,14 @@ function appendInlineMarkdown(parent, text) {
             a.href = match[4];
             a.target = "_blank";
             a.rel = "noopener noreferrer";
-            appendInlineMarkdown(a, match[3]);
+            const citeMatch = match[3].trim().match(/^(?:Source\s+|#)?(\d+)$/i);
+            if (citeMatch) {
+                a.className = "citation-badge";
+                a.title = match[4];
+                a.textContent = `[${citeMatch[1]}]`;
+            } else {
+                appendInlineMarkdown(a, match[3]);
+            }
             parent.appendChild(a);
         } else if (match[5]) {
             const strong = document.createElement("strong");
@@ -457,6 +465,7 @@ async function saveConfig() {
     const uiLanguage = uiLanguageSelect.value || "en";
     const responseLanguage = responseLanguageSelect.value || "auto";
     const thinkingMode = Boolean(thinkingModeInput.checked);
+    const includeCitations = Boolean(includeCitationsInput.checked);
     const advancedMode = Boolean(advancedToggleInput.checked);
     const maxSources = Math.min(8, Math.max(2, Number(maxSourcesInput.value) || DEFAULT_MAX_SOURCES));
     const contextSize = Math.min(8192, Math.max(2048, Number(contextSizeInput.value) || DEFAULT_CONTEXT_SIZE));
@@ -475,6 +484,7 @@ async function saveConfig() {
         uiLanguage,
         responseLanguage,
         thinkingMode,
+        includeCitations,
         advancedMode,
         maxSources,
         contextSize,
@@ -514,6 +524,10 @@ responseLanguageSelect.addEventListener("change", () => {
 });
 
 thinkingModeInput.addEventListener("change", () => {
+    saveConfig();
+});
+
+includeCitationsInput.addEventListener("change", () => {
     saveConfig();
 });
 
@@ -565,6 +579,7 @@ saveConfigBtn.addEventListener("click", () => {
         "uiLanguage",
         "responseLanguage",
         "thinkingMode",
+        "includeCitations",
         "advancedMode",
         "maxSources",
         "contextSize",
@@ -578,6 +593,7 @@ saveConfigBtn.addEventListener("click", () => {
     const responseLanguage = stored.responseLanguage || "auto";
     const endpoint = stored.ollamaInstance || DEFAULT_OLLAMA_INSTANCE;
     const thinkingMode = Boolean(stored.thinkingMode);
+    const includeCitations = stored.includeCitations !== undefined ? Boolean(stored.includeCitations) : true;
     const advancedMode = Boolean(stored.advancedMode);
     const maxSources = Math.min(8, Math.max(2, Number(stored.maxSources) || DEFAULT_MAX_SOURCES));
     const contextSize = Math.min(8192, Math.max(2048, Number(stored.contextSize) || DEFAULT_CONTEXT_SIZE));
@@ -593,6 +609,7 @@ saveConfigBtn.addEventListener("click", () => {
     savedHelperModel = stored.helperModel || "";
     ollamaEndpointInput.value = endpoint;
     thinkingModeInput.checked = thinkingMode;
+    includeCitationsInput.checked = includeCitations;
     advancedToggleInput.checked = advancedMode;
     advancedSection.classList.toggle("open", advancedMode);
     maxSourcesInput.value = maxSources;
@@ -603,7 +620,7 @@ saveConfigBtn.addEventListener("click", () => {
     helperModelField.style.display = queryExpansion ? "block" : "none";
     systemPromptInput.value = systemPrompt;
 
-    if (!stored.systemPrompt || !stored.contextSize || !stored.maxSources || !stored.uiLanguage) {
+    if (!stored.systemPrompt || !stored.contextSize || !stored.maxSources || !stored.uiLanguage || stored.includeCitations === undefined) {
         await browser.storage.local.set({
             uiLanguage,
             responseLanguage,
@@ -611,6 +628,7 @@ saveConfigBtn.addEventListener("click", () => {
             maxSources,
             contextSize,
             thinkingMode,
+            includeCitations,
             advancedMode,
             queryExpansion
         });

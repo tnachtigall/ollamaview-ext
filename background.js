@@ -181,6 +181,7 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
                     "mainModel",
                     "responseLanguage",
                     "thinkingMode",
+                    "includeCitations",
                     "maxSources",
                     "contextSize",
                     "queryExpansion",
@@ -191,6 +192,7 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
                 const mainModel = (stored.mainModel || "").trim();
                 const responseLanguage = (stored.responseLanguage || "auto").trim();
                 const thinkingMode = Boolean(stored.thinkingMode);
+                const includeCitations = stored.includeCitations !== undefined ? Boolean(stored.includeCitations) : true;
                 const maxSources = Math.min(8, Math.max(2, Number(stored.maxSources) || DEFAULT_MAX_SOURCES));
                 const contextSize = Number(stored.contextSize) || DEFAULT_CONTEXT_SIZE;
                 const queryExpansion = Boolean(stored.queryExpansion);
@@ -229,6 +231,7 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
                     mainModel: mainModel,
                     responseLanguage: responseLanguage,
                     thinkingMode: thinkingMode,
+                    includeCitations: includeCitations,
                     maxSources: maxSources,
                     contextSize: contextSize,
                     queryExpansion: queryExpansion,

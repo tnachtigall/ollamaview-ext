@@ -12,6 +12,8 @@
   "responseLangAuto": "자동 (검색어 언어에 맞춤)",
   "thinkingModeLabel": "추론(Thinking) 모드",
   "thinkingTooltip": "추론 모델(Gemma 4, Qwen 3 등)이 답변 전에 생각할 수 있도록 합니다. 복잡한 추론 품질이 향상되지만 첫 토큰 출력까지의 대기 시간이 길어집니다.",
+  "citationsLabel": "인용 및 출처 링크 포함",
+  "citationsTooltip": "답변의 근거를 클릭 가능한 인라인 인용 번호 [1], [2] 및 출처 링크 목록으로 표시합니다.",
   "advancedSettingsLabel": "고급 설정",
   "sourcesLabel": "참조 출처 수",
   "sourcesTooltip": "적은 출처 = 빠른 수집 및 페이지당 깊은 발췌. 많은 출처 = 여러 사이트의 폭넓은 종합 및 짧은 발췌.",

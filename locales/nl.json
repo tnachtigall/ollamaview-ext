@@ -12,6 +12,8 @@
   "responseLangAuto": "Automatisch (Zoals zoekopdracht)",
   "thinkingModeLabel": "Denkmodus",
   "thinkingTooltip": "Laat redeneermodellen (bijv. Gemma 4, Qwen 3) nadenken vóór het antwoorden. Verbetert complexe antwoorden, maar verhoogt de wachttijd.",
+  "citationsLabel": "Bronvermeldingen tonen",
+  "citationsTooltip": "Onderbouw beweringen met klikbare bronverwijzingen [1], [2] en een lijst met bronlinks.",
   "advancedSettingsLabel": "Geavanceerde instellingen",
   "sourcesLabel": "Bronnen",
   "sourcesTooltip": "Minder bronnen = sneller ophalen en diepere fragmenten per pagina. Meer bronnen = bredere synthese met kortere fragmenten.",

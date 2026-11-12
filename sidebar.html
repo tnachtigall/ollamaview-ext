@@ -296,6 +296,25 @@
       color: var(--accent);
       text-decoration: underline;
     }
+    #output a.citation-badge {
+      display: inline-block;
+      font-size: 0.78em;
+      font-weight: 600;
+      line-height: 1.25;
+      padding: 1px 5px;
+      margin: 0 1px;
+      border-radius: 4px;
+      background-color: var(--code-bg);
+      border: 1px solid var(--border);
+      color: var(--accent);
+      text-decoration: none;
+      vertical-align: baseline;
+    }
+    #output a.citation-badge:hover {
+      background-color: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+    }
     #output .table-wrap {
       overflow-x: auto;
       margin: 0.65em 0;
@@ -354,6 +373,16 @@
         </span>
       </span>
       <input id="thinkingMode" type="checkbox" />
+    </div>
+
+    <div class="checkbox-row">
+      <span class="label-left">
+        <label for="includeCitations" style="margin:0; cursor:pointer;" data-i18n="citationsLabel">Include Citations</label>
+        <span class="tooltip-wrap" tabindex="0" aria-label="Citations info">ⓘ
+          <span class="tooltip-box" data-i18n="citationsTooltip">Support claims in the overview with clickable inline source citations [1], [2] and a reference list of links.</span>
+        </span>
+      </span>
+      <input id="includeCitations" type="checkbox" checked />
     </div>
 
     <div class="checkbox-row">

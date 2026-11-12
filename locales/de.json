@@ -12,6 +12,8 @@
   "responseLangAuto": "Automatisch (Wie Suchanfrage)",
   "thinkingModeLabel": "Denkmodus (Thinking)",
   "thinkingTooltip": "Erlaubt Reasoning-Modellen (z. B. Gemma 4, Qwen 3), vor der Antwort nachzudenken. Verbessert komplexe Antworten, erhöht aber die Wartezeit bis zum ersten Wort.",
+  "citationsLabel": "Quellenangaben einfügen",
+  "citationsTooltip": "Belegt Aussagen in der Übersicht mit anklickbaren Quellenverweisen [1], [2] und einer Linkliste.",
   "advancedSettingsLabel": "Erweiterte Einstellungen",
   "sourcesLabel": "Quellen",
   "sourcesTooltip": "Weniger Quellen = schnellerer Abruf & tiefere Auszüge pro Seite. Mehr Quellen = breitere Synthese über mehrere Seiten mit kürzeren Auszügen.",

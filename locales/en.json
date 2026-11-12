@@ -12,6 +12,8 @@
   "responseLangAuto": "Auto (Match Search Query)",
   "thinkingModeLabel": "Thinking Mode",
   "thinkingTooltip": "Allow reasoning models (e.g. Gemma 4, Qwen 3) to think before answering. Improves complex reasoning, but increases wait time before the answer starts.",
+  "citationsLabel": "Include Citations",
+  "citationsTooltip": "Support claims in the overview with clickable inline source citations [1], [2] and a reference list of links.",
   "advancedSettingsLabel": "Advanced Settings",
   "sourcesLabel": "Sources",
   "sourcesTooltip": "Fewer sources = faster fetch & deeper excerpts per page. More sources = broader synthesis across sites, with shorter excerpts per page.",
