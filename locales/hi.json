@@ -33,6 +33,8 @@
   "helperModelLabel": "सहायक मॉडल",
   "systemPromptLabel": "सिस्टम प्रॉम्प्ट",
   "resetBtn": "रीसेट",
+  "applyRecommendedBtn": "अनुशंसित सेटिंग्स",
+  "recommendedApplied": "अनुशंसित सेटिंग्स लागू की गईं",
   "saveBtn": "सहेजें",
   "waitingForSearch": "खोज की प्रतीक्षा में...",
   "resultsAppearHere": "परिणाम यहाँ दिखाई देंगे।",

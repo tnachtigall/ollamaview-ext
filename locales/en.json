@@ -33,6 +33,8 @@
   "helperModelLabel": "Expansion Helper Model",
   "systemPromptLabel": "System Prompt",
   "resetBtn": "Reset",
+  "applyRecommendedBtn": "Apply Recommended Config",
+  "recommendedApplied": "Recommended config applied",
   "saveBtn": "Save",
   "waitingForSearch": "Waiting for a search...",
   "resultsAppearHere": "Results will appear here.",

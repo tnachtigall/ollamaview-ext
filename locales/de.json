@@ -33,6 +33,8 @@
   "helperModelLabel": "Hilfsmodell für Erweiterung",
   "systemPromptLabel": "System-Prompt",
   "resetBtn": "Zurücksetzen",
+  "applyRecommendedBtn": "Empfohlene Werte laden",
+  "recommendedApplied": "Empfohlene Konfiguration angewendet",
   "saveBtn": "Speichern",
   "waitingForSearch": "Warte auf eine Suche...",
   "resultsAppearHere": "Ergebnisse erscheinen hier.",

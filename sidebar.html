@@ -217,10 +217,17 @@
 
     .actions-row {
       display: flex;
+      flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
       margin-top: 8px;
       gap: 6px;
+    }
+
+    .actions-buttons {
+      display: flex;
+      gap: 6px;
+      margin-left: auto;
     }
 
     #configStatus {
@@ -441,7 +448,10 @@
 
     <div class="actions-row">
       <span id="configStatus"></span>
-      <button id="saveConfigBtn" type="button" data-i18n="saveBtn">Save</button>
+      <div class="actions-buttons">
+        <button id="applyRecommendedBtn" type="button" data-i18n="applyRecommendedBtn">Apply Recommended Config</button>
+        <button id="saveConfigBtn" type="button" data-i18n="saveBtn">Save</button>
+      </div>
     </div>
   </div>
 

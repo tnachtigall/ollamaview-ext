@@ -33,6 +33,8 @@
   "helperModelLabel": "拡張用補助モデル",
   "systemPromptLabel": "システムプロンプト",
   "resetBtn": "リセット",
+  "applyRecommendedBtn": "推奨設定を適用",
+  "recommendedApplied": "推奨設定を適用しました",
   "saveBtn": "保存",
   "waitingForSearch": "検索を待機中...",
   "resultsAppearHere": "ここに結果が表示されます。",

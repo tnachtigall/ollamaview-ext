@@ -33,6 +33,8 @@
   "helperModelLabel": "Model pomocniczy",
   "systemPromptLabel": "Prompt systemowy",
   "resetBtn": "Resetuj",
+  "applyRecommendedBtn": "Zalecane ustawienia",
+  "recommendedApplied": "Zastosowano zalecane ustawienia",
   "saveBtn": "Zapisz",
   "waitingForSearch": "Oczekiwanie na wyszukiwanie...",
   "resultsAppearHere": "Wyniki pojawią się tutaj.",

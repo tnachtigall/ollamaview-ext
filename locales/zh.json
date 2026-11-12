@@ -33,6 +33,8 @@
   "helperModelLabel": "扩展辅助模型",
   "systemPromptLabel": "系统提示词",
   "resetBtn": "重置",
+  "applyRecommendedBtn": "应用推荐配置",
+  "recommendedApplied": "已应用推荐配置",
   "saveBtn": "保存",
   "waitingForSearch": "等待搜索...",
   "resultsAppearHere": "搜索概览将显示在这里。",

@@ -33,6 +33,8 @@
   "helperModelLabel": "Modelo Auxiliar de Expansão",
   "systemPromptLabel": "Prompt do Sistema",
   "resetBtn": "Redefinir",
+  "applyRecommendedBtn": "Config Recomendada",
+  "recommendedApplied": "Configuração recomendada aplicada",
   "saveBtn": "Salvar",
   "waitingForSearch": "Aguardando uma pesquisa...",
   "resultsAppearHere": "Os resultados aparecerão aqui.",

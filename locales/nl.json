@@ -33,6 +33,8 @@
   "helperModelLabel": "Hulpmodel voor uitbreiding",
   "systemPromptLabel": "Systeemprompt",
   "resetBtn": "Herstellen",
+  "applyRecommendedBtn": "Aanbevolen instellingen",
+  "recommendedApplied": "Aanbevolen instellingen toegepast",
   "saveBtn": "Opslaan",
   "waitingForSearch": "Wachten op een zoekopdracht...",
   "resultsAppearHere": "Resultaten verschijnen hier.",

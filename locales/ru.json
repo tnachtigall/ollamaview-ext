@@ -33,6 +33,8 @@
   "helperModelLabel": "Вспомогательная модель",
   "systemPromptLabel": "Системный промпт",
   "resetBtn": "Сброс",
+  "applyRecommendedBtn": "Рекомендуемые",
+  "recommendedApplied": "Применены рекомендуемые настройки",
   "saveBtn": "Сохранить",
   "waitingForSearch": "Ожидание поискового запроса...",
   "resultsAppearHere": "Результаты появятся здесь.",

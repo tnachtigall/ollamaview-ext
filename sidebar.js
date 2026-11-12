@@ -35,6 +35,7 @@ const helperModelField = document.getElementById("helperModelField");
 const helperModelSelect = document.getElementById("helperModelSelect");
 const systemPromptInput = document.getElementById("systemPrompt");
 const resetPromptBtn = document.getElementById("resetPromptBtn");
+const applyRecommendedBtn = document.getElementById("applyRecommendedBtn");
 const saveConfigBtn = document.getElementById("saveConfigBtn");
 const configStatus = document.getElementById("configStatus");
 
@@ -577,6 +578,28 @@ contextSizeInput.addEventListener("change", () => {
 
 saveConfigBtn.addEventListener("click", () => {
     saveConfig();
+});
+
+applyRecommendedBtn.addEventListener("click", async () => {
+    const browserLang = (navigator.language || "en").slice(0, 2).toLowerCase();
+    const defaultUiLang = availableLocales.some(l => l.code === browserLang) ? browserLang : "en";
+
+    uiLanguageSelect.value = defaultUiLang;
+    responseLanguageSelect.value = "auto";
+    thinkingModeInput.checked = false;
+    includeCitationsInput.checked = true;
+    maxSourcesInput.value = DEFAULT_MAX_SOURCES;
+    contextSizeInput.value = DEFAULT_CONTEXT_SIZE;
+    queryExpansionInput.checked = false;
+    helperModelField.style.display = "none";
+
+    await applyUiLanguage(defaultUiLang);
+    systemPromptInput.value = t("defaultSystemPrompt", DEFAULT_SYSTEM_PROMPT);
+    maxSourcesValue.textContent = formatSourcesLabel(DEFAULT_MAX_SOURCES);
+    contextSizeValue.textContent = formatContextLabel(DEFAULT_CONTEXT_SIZE);
+
+    await saveConfig();
+    setConfigStatus(t("recommendedApplied", "Recommended config applied"));
 });
 
 // Initialize config state on sidebar load
