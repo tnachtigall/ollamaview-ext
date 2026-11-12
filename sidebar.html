@@ -106,7 +106,7 @@
       gap: 6px;
     }
 
-    .input-row input, select {
+    .input-row input, select, textarea {
       width: 100%;
       box-sizing: border-box;
       padding: 5px 7px;
@@ -115,6 +115,13 @@
       background-color: var(--input-bg);
       color: var(--input-fg);
       font-size: 0.95em;
+      font-family: inherit;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 75px;
+      line-height: 1.4;
     }
 
     .actions-row {
@@ -238,6 +245,10 @@
       <select id="modelSelect">
         <option value="">-- Fetch models first --</option>
       </select>
+    </div>
+    <div class="field">
+      <label for="systemPrompt">System Prompt</label>
+      <textarea id="systemPrompt" rows="5"></textarea>
     </div>
     <div class="actions-row">
       <span id="configStatus"></span>

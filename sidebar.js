@@ -1,5 +1,6 @@
 
 const DEFAULT_OLLAMA_INSTANCE = "http://127.0.0.1:11434";
+const DEFAULT_SYSTEM_PROMPT = "You are a helpful, privacy-focused search assistant. Using the provided web search sources, write a clear, concise, and accurate overview that directly answers the user's search query. Format your response in clean Markdown (such as bullet points, bold key terms, and short sections where helpful). Synthesize key facts from the sources, stay objective, and avoid speculation. If the sources do not contain enough information to fully answer the query, briefly state what is missing and provide the best helpful answer you can.";
 
 const queryDisplay = document.getElementById("queryDisplay");
 const outputDiv = document.getElementById("output");
@@ -8,6 +9,7 @@ const configPanel = document.getElementById("configPanel");
 const ollamaEndpointInput = document.getElementById("ollamaEndpoint");
 const fetchModelsBtn = document.getElementById("fetchModelsBtn");
 const modelSelect = document.getElementById("modelSelect");
+const systemPromptInput = document.getElementById("systemPrompt");
 const saveConfigBtn = document.getElementById("saveConfigBtn");
 const configStatus = document.getElementById("configStatus");
 
@@ -314,9 +316,11 @@ function requestModels(endpoint) {
 async function saveConfig() {
     const ollamaInstance = (ollamaEndpointInput.value || DEFAULT_OLLAMA_INSTANCE).trim();
     const mainModel = (modelSelect.value || "").trim();
+    const systemPrompt = (systemPromptInput.value || "").trim() || DEFAULT_SYSTEM_PROMPT;
+    systemPromptInput.value = systemPrompt;
     savedModel = mainModel;
-    await browser.storage.local.set({ ollamaInstance, mainModel });
-    setConfigStatus(mainModel ? `Saved (${mainModel})` : "Saved endpoint");
+    await browser.storage.local.set({ ollamaInstance, mainModel, systemPrompt });
+    setConfigStatus(mainModel ? `Saved (${mainModel})` : "Saved config");
 }
 
 configToggleBtn.addEventListener("click", () => {
@@ -343,10 +347,18 @@ saveConfigBtn.addEventListener("click", () => {
 
 // Initialize config state on sidebar load
 (async function initConfig() {
-    const stored = await browser.storage.local.get(["ollamaInstance", "mainModel"]);
+    const stored = await browser.storage.local.get(["ollamaInstance", "mainModel", "systemPrompt"]);
     const endpoint = stored.ollamaInstance || DEFAULT_OLLAMA_INSTANCE;
+    const systemPrompt = (stored.systemPrompt && stored.systemPrompt.trim())
+        ? stored.systemPrompt
+        : DEFAULT_SYSTEM_PROMPT;
     savedModel = stored.mainModel || "";
     ollamaEndpointInput.value = endpoint;
+    systemPromptInput.value = systemPrompt;
+
+    if (!stored.systemPrompt) {
+        await browser.storage.local.set({ systemPrompt });
+    }
 
     if (!savedModel) {
         configPanel.classList.add("open");

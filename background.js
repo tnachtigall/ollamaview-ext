@@ -1,5 +1,6 @@
 const HOST_NAME = "com.till.ollamaview";
 const DEFAULT_OLLAMA_INSTANCE = "http://127.0.0.1:11434";
+const DEFAULT_SYSTEM_PROMPT = "You are a helpful, privacy-focused search assistant. Using the provided web search sources, write a clear, concise, and accurate overview that directly answers the user's search query. Format your response in clean Markdown (such as bullet points, bold key terms, and short sections where helpful). Synthesize key facts from the sources, stay objective, and avoid speculation. If the sources do not contain enough information to fully answer the query, briefly state what is missing and provide the best helpful answer you can.";
 let rustPort = null;
 
 // rust backend connection
@@ -175,9 +176,10 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
             const query = url.searchParams.get("q");
 
             if (query) {
-                const stored = await browser.storage.local.get(["ollamaInstance", "mainModel"]);
+                const stored = await browser.storage.local.get(["ollamaInstance", "mainModel", "systemPrompt"]);
                 const ollamaInstance = (stored.ollamaInstance || DEFAULT_OLLAMA_INSTANCE).trim();
                 const mainModel = (stored.mainModel || "").trim();
+                const systemPrompt = (stored.systemPrompt || DEFAULT_SYSTEM_PROMPT).trim();
 
                 if (!mainModel) {
                     browser.runtime.sendMessage({
@@ -203,7 +205,13 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 
                 const urls = await getTopSearchResults(tabId);
 
-                const payload = { query: query, urls: urls, ollamaInstance: ollamaInstance, mainModel: mainModel };
+                const payload = {
+                    query: query,
+                    urls: urls,
+                    ollamaInstance: ollamaInstance,
+                    mainModel: mainModel,
+                    systemPrompt: systemPrompt
+                };
                 console.log("Sending exact payload to Rust:", JSON.stringify(payload));
 
                 try {
