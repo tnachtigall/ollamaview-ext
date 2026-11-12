@@ -321,7 +321,7 @@ function formatContextLabel(val) {
     let tier = "Balanced";
     if (n <= 2048) tier = "Fastest";
     else if (n <= 4096) tier = "Balanced";
-    else if (n <= 8192) tier = "Deep";
+    else if (n <= 6144) tier = "Deep";
     else tier = "Max Depth";
     return `${n} tokens (${tier})`;
 }
@@ -329,7 +329,7 @@ function formatContextLabel(val) {
 async function saveConfig() {
     const ollamaInstance = (ollamaEndpointInput.value || DEFAULT_OLLAMA_INSTANCE).trim();
     const mainModel = (modelSelect.value || "").trim();
-    const contextSize = Number(contextSizeInput.value) || DEFAULT_CONTEXT_SIZE;
+    const contextSize = Math.min(8192, Math.max(2048, Number(contextSizeInput.value) || DEFAULT_CONTEXT_SIZE));
     const systemPrompt = (systemPromptInput.value || "").trim() || DEFAULT_SYSTEM_PROMPT;
     systemPromptInput.value = systemPrompt;
     contextSizeValue.textContent = formatContextLabel(contextSize);
@@ -372,7 +372,7 @@ saveConfigBtn.addEventListener("click", () => {
 (async function initConfig() {
     const stored = await browser.storage.local.get(["ollamaInstance", "mainModel", "contextSize", "systemPrompt"]);
     const endpoint = stored.ollamaInstance || DEFAULT_OLLAMA_INSTANCE;
-    const contextSize = Number(stored.contextSize) || DEFAULT_CONTEXT_SIZE;
+    const contextSize = Math.min(8192, Math.max(2048, Number(stored.contextSize) || DEFAULT_CONTEXT_SIZE));
     const systemPrompt = (stored.systemPrompt && stored.systemPrompt.trim())
         ? stored.systemPrompt
         : DEFAULT_SYSTEM_PROMPT;
