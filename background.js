@@ -1,4 +1,4 @@
-const HOST_NAME = "com.till.ollamaview";
+const HOST_NAME = "ollamaview.host";
 const DEFAULT_OLLAMA_INSTANCE = "http://127.0.0.1:11434";
 const DEFAULT_MAX_SOURCES = 5;
 const DEFAULT_CONTEXT_SIZE = 4096;
