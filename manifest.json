@@ -2,10 +2,12 @@
   "manifest_version": 3,
   "name": "ollamaview",
   "version": "0.1.0",
-  "description": "Side Panel frontend for the ollamaview project - privacy first AI Overview powered by your local ollama instance, written in Rust.",
+  "description": "Side Panel frontend for the ollamaview project - privacy first AI Overview powered by your local ollama instance - native messaging backend written in rust",
   "browser_specific_settings": {
     "gecko": {
-      "id": "{C76103A5-77D3-4F60-AB75-4B713E7FA15E}"
+      "id": "{C76103A5-77D3-4F60-AB75-4B713E7FA15E}",
+      "strict_min_version": "128.0",
+      "update_url": "https://raw.githubusercontent.com/tnachtigall/ollamaview-ext/main/updates.json"
     }
   },
   "permissions": [

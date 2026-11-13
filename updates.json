@@ -1,0 +1,13 @@
+{
+  "addons": {
+    "{C76103A5-77D3-4F60-AB75-4B713E7FA15E}": {
+      "updates": [
+        {
+          "version": "0.1.0",
+          "update_link": "https://github.com/tnachtigall/ollamaview-ext/releases/download/v0.1.0/ollamaview-ext-0.1.0.xpi",
+          "update_hash": "sha256:0fab148bfe850821bdf372f12661e7ea1837b53b8f4ca4de56bddd52afb13614"
+        }
+      ]
+    }
+  }
+}

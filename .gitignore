@@ -11,6 +11,7 @@ package-lock.json
 # yarn.lock
 
 # --- Build Outputs ---
+.amo-upload-uuid
 web-ext-artifacts/
 dist/
 build/
