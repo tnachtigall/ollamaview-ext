@@ -35,4 +35,4 @@ This extension requires the local Rust host ([`ollamaview`](https://github.com/t
 
 ---
 
-See the backend repository [`ollamaview` repository](https://github.com/tnachtigall/ollamaview) for architecture details and model recommendations
+See the backend repository [`ollamaview`](https://github.com/tnachtigall/ollamaview) for architecture details and model recommendations
