@@ -11,6 +11,7 @@ package-lock.json
 # yarn.lock
 
 # --- Build Outputs ---
+web-ext-artifacts/
 dist/
 build/
 out/
