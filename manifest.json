@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "Ollamaview - local ai overview",
-  "version": "1.0",
+  "name": "ollamaview",
+  "version": "0.1.0",
   "description": "Side Panel frontend for the ollamaview project - privacy first AI Overview powered by your local ollama instance, written in Rust.",
   "browser_specific_settings": {
     "gecko": {
