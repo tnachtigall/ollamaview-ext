@@ -19,19 +19,17 @@ When the sidebar is open on your search engine, the extension extracts organic s
 
 ## Installation
 
-> **Note:** This extension is not yet signed or published on Mozilla Add-ons (AMO) and can currently only be loaded as a temporary add-on.
+> **Note:** This extension is not yet listed on the Mozilla Add-on Market Place
 
 ### 1. Set Up the Native Backend
 This extension requires the local Rust host ([`ollamaview`](https://github.com/tnachtigall/ollamaview)) and a running **Ollama** instance. Follow the [backend build & native messaging setup instructions](https://github.com/tnachtigall/ollamaview#setup) to compile `ollamaview` and register `ollamaview.host.json`.
 
 ### 2. Load the Extension
-1. Clone this repository:
-   ```bash
-   git clone https://github.com/tnachtigall/ollamaview-ext.git
-   ```
-2. Open `about:debugging#/runtime/this-firefox` in your browser.
-3. Click **Load Temporary Add-on...** and select `manifest.json` inside `ollamaview-ext`.
-4. Open the extension in the sidebar, click **⚙ Config**, click **Fetch** next to your Ollama endpoint, and pick your model (e.g., `gemma4:12B`).
+1. go to the Releases Tab of this repository and open the latest release
+2. under Assets, click on the ".xpi" file
+3.1 your browser should automatically prompt you to install the add-on
+3.2 if not, download the file, type about:addons into your firefox url bar and drag and drop the xpi file into the browser window
+4. open the newly installed extension in the sidebar and configure your ollama endpoint and model
 
 ---
 
