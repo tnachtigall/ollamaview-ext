@@ -374,16 +374,6 @@
 
     <div class="checkbox-row">
       <span class="label-left">
-        <label for="thinkingMode" style="margin:0; cursor:pointer;" data-i18n="thinkingModeLabel">Thinking Mode</label>
-        <span class="tooltip-wrap" tabindex="0" aria-label="Thinking mode info">ⓘ
-          <span class="tooltip-box" data-i18n="thinkingTooltip">Allow reasoning models (e.g. Gemma 4, Qwen 3) to think before answering. Improves complex reasoning, but increases wait time before the answer starts.</span>
-        </span>
-      </span>
-      <input id="thinkingMode" type="checkbox" />
-    </div>
-
-    <div class="checkbox-row">
-      <span class="label-left">
         <label for="includeCitations" style="margin:0; cursor:pointer;" data-i18n="citationsLabel">Include Citations</label>
         <span class="tooltip-wrap" tabindex="0" aria-label="Citations info">ⓘ
           <span class="tooltip-box" data-i18n="citationsTooltip">Support claims in the overview with clickable inline source citations [1], [2] and a reference list of links.</span>
@@ -421,6 +411,15 @@
           <span id="contextSizeValue" class="label-value">4096 tokens (Balanced)</span>
         </label>
         <input id="contextSize" type="range" min="2048" max="8192" step="2048" value="4096" />
+      </div>
+      <div class="checkbox-row">
+        <span class="label-left">
+          <label for="thinkingMode" style="margin:0; cursor:pointer;" data-i18n="thinkingModeLabel">Thinking Mode</label>
+          <span class="tooltip-wrap" tabindex="0" aria-label="Thinking mode info">ⓘ
+            <span class="tooltip-box" data-i18n="thinkingTooltip">Allow reasoning models (e.g. Gemma 4, Qwen 3) to think before answering. Improves complex reasoning, but increases wait time before the answer starts.</span>
+          </span>
+        </span>
+        <input id="thinkingMode" type="checkbox" />
       </div>
       <div class="checkbox-row">
         <span class="label-left">
