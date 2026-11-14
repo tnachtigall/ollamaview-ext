@@ -90,24 +90,50 @@ async function getTopSearchResults(targetTabId, candidateLimit) {
                 const selector = '#search .g a:has(h3), #search a:has(h3), a[data-testid="result-title-a"], .result a.result-title, a[data-test-id="result-link"]';
                 const currentHost = window.location.hostname;
 
+                const isExternalHost = (hostname) =>
+                    hostname !== currentHost && !hostname.endsWith("." + currentHost);
+
+                const resolveResultUrl = (href) => {
+                    let parsedUrl;
+                    try {
+                        parsedUrl = new URL(href);
+                    } catch (e) {
+                        return null;
+                    }
+                    if (parsedUrl.protocol !== "http:" && parsedUrl.protocol !== "https:") {
+                        return null;
+                    }
+                    if (isExternalHost(parsedUrl.hostname)) {
+                        return href;
+                    }
+                    // Unwrap plain redirect links (e.g. Google /url?q=... or DuckDuckGo /l/?uddg=...)
+                    for (const param of ["q", "url", "uddg"]) {
+                        const candidate = parsedUrl.searchParams.get(param);
+                        if (candidate && (candidate.startsWith("http://") || candidate.startsWith("https://"))) {
+                            try {
+                                const target = new URL(candidate);
+                                if (isExternalHost(target.hostname)) {
+                                    return candidate;
+                                }
+                            } catch (e) {
+                                // Ignore malformed redirect targets
+                            }
+                        }
+                    }
+                    // Pass through Google's opaque /goto?url=... redirects for the backend to resolve
+                    if (parsedUrl.pathname === "/goto" && parsedUrl.searchParams.has("url")) {
+                        return href;
+                    }
+                    return null;
+                };
+
                 const extractExternalUrls = () => {
                     const linkNodes = document.querySelectorAll(selector);
                     const found = [];
                     for (const node of linkNodes) {
-                        const href = node.href;
-                        try {
-                            const parsedUrl = new URL(href);
-                            if (
-                                (parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:") &&
-                                parsedUrl.hostname !== currentHost &&
-                                !parsedUrl.hostname.endsWith("." + currentHost)
-                            ) {
-                                if (!found.includes(href)) {
-                                    found.push(href);
-                                }
-                            }
-                        } catch (e) {
-                            continue;
+                        const resolved = resolveResultUrl(node.href);
+                        if (resolved && !found.includes(resolved)) {
+                            found.push(resolved);
                         }
                         if (found.length >= limit) break;
                     }
